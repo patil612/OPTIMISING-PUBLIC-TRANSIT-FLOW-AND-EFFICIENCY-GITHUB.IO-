@@ -1,0 +1,1994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ Code Viewer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #editor {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ccc;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ccc;
+            white-space: pre-wrap; /* Ensure long lines wrap */
+        }
+    </style>
+</head>
+<body>
+    <h1>C++ Code Viewer</h1>
+    <div id="editor">// Enter your C++ code here
+#include <iostream>
+#include <vector>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+#include <algorithm>
+#include <vector>
+#include <unordered_map>
+#include <list>
+#include <limits>
+#include <cstdlib>
+#include <ctime>
+#include <map>
+#include <cctype>
+#include <unordered_map>
+#include <string>
+#include <vector>
+#include <iomanip>
+#include <algorithm>
+#include <ctime>
+#include <sstream>
+#include <limits>
+#include <fstream>
+#include <cmath>
+#include <cstdlib>
+#include <climits>
+#include <cfloat>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <map>
+#include <set>
+#include <algorithm>
+#include <cmath>
+#include <limits>
+#include <random>
+using namespace std;
+
+class Train
+ {
+private:
+    int trainID;
+    string trainName;
+    string source;
+    string destination;
+    double ticketPrice;
+    int availableSeats;
+    vector<bool> seatAvailability;
+    string departureTime;
+    string platformNumber;
+
+public:
+    Train(int id, const string& name, const string& src, const string& dest, double price, int seats, const string& time, const string& platform)
+        : trainID(id), trainName(name), source(src), destination(dest), ticketPrice(price), availableSeats(seats),
+          seatAvailability(seats, false), departureTime(time), platformNumber(platform) {}
+
+    int getTrainID() const { return trainID; }
+    const string& getTrainName() const { return trainName; }
+    const string& getSource() const { return source; }
+    const string& getDestination() const { return destination; }
+    double getTicketPrice() const { return ticketPrice; }
+    int getAvailableSeats() const { return availableSeats; }
+    const string& getDepartureTime() const { return departureTime; }
+    const string& getPlatformNumber() const { return platformNumber; }
+
+    void bookSeat(int seatNumber) 
+    {
+        seatAvailability[seatNumber - 1] = true;
+        availableSeats--;
+    }
+
+    void cancelSeat(int seatNumber) 
+    {
+        seatAvailability[seatNumber - 1] = false;
+        availableSeats++;
+    }
+
+    bool isSeatAvailable(int seatNumber) const 
+    {
+        return !seatAvailability[seatNumber - 1];
+    }
+
+    void displayAvailableSeats() const
+     {
+        for (size_t i = 0; i < seatAvailability.size(); ++i) {
+            if (!seatAvailability[i]) {
+                cout << (i + 1) << " ";
+            }
+        }
+        cout << "\n";
+    }
+
+    void displayDetails() const
+     {
+        std::cout << "Train ID: " << trainID
+                  << "\nTrain Name: " << trainName
+                  << "\nSource: " << source
+                  << "\nDestination: " << destination
+                  << "\nTicket Price: Rs." << ticketPrice
+                  << "\nAvailable Seats: " << availableSeats
+                  << "\nDeparture Time: " << departureTime
+                  << "\nPlatform Number: " << platformNumber << "\n\n";
+    }
+};
+
+class Ticket 
+{
+private:
+    int ticketID;
+    int trainID;
+    std::string passengerName;
+    int seatNumber;
+    double ticketPrice;
+    std::string departureTime;
+    std::string platformNumber;
+
+public:
+    Ticket(int tID, int trID, const std::string& name, int seat, double price, const std::string& time, const std::string& platform)
+        : ticketID(tID), trainID(trID), passengerName(name), seatNumber(seat), ticketPrice(price), departureTime(time), platformNumber(platform) {}
+
+    int getTicketID() const { return ticketID; }
+    int getTrainID() const { return trainID; }
+    const std::string& getPassengerName() const { return passengerName; }
+    int getSeatNumber() const { return seatNumber; }
+    double getTicketPrice() const { return ticketPrice; }
+    const std::string& getDepartureTime() const { return departureTime; }
+    const std::string& getPlatformNumber() const { return platformNumber; }
+
+    void displayTicketDetails() const 
+    {
+        std::cout << "\n--- Ticket Details ---\n";
+        std::cout << "Ticket ID: " << ticketID << "\n";
+        std::cout << "Train ID: " << trainID << "\n";
+        std::cout << "Passenger Name: " << passengerName << "\n";
+        std::cout << "Seat Number: " << seatNumber << "\n";
+        std::cout << "Ticket Price: Rs." << ticketPrice << "\n";
+        std::cout << "Departure Time: " << departureTime << "\n";
+        std::cout << "Platform Number: " << platformNumber << "\n";
+    }
+};
+// Station Class
+class Station
+ {
+private:
+    int stationID;
+    std::string stationName;
+    int platformCount;
+
+public:
+    // Constructor
+    Station(int id, const std::string& name, int platforms)
+        : stationID(id), stationName(name), platformCount(platforms) {}
+
+    // Getters
+    int getStationID() const { return stationID; }
+    std::string getStationName() const { return stationName; }
+    int getPlatformCount() const { return platformCount; }
+
+    // Setters
+    void setStationName(const std::string& name) { stationName = name; }
+    void setPlatformCount(int platforms) { platformCount = platforms; }
+
+    // Display Method
+    void displayStation() const 
+    {
+        std::cout << "Station ID: " << stationID
+                  << ", Name: " << stationName
+                  << ", Platforms: " << platformCount << "\n";
+    }
+
+    // Save Station to File
+    void saveToFile(std::ofstream& outFile) const 
+    {
+        outFile << stationID << " " << stationName << "|" << platformCount << "\n";
+    }
+
+    // Static Method: Load Station from File
+    static Station loadFromFile(std::ifstream& inFile) 
+    {
+        int id, platforms;
+        std::string name;
+        inFile >> id;
+        inFile.ignore();
+        std::getline(inFile, name, '|');
+        inFile >> platforms;
+        return Station(id, name, platforms);
+    }
+};
+void addStation(std::vector<Station>& stations);
+void viewStations(const std::vector<Station>& stations);
+void saveStationsToFile(const std::vector<Station>& stations);
+void loadStationsFromFile(std::vector<Station>& stations);
+void searchStation(const std::vector<Station>& stations);
+bool validateCard(const std::string& cardNumber) {
+    if (cardNumber.length() != 16)
+     {
+        std::cout << "Invalid card number! Card number must be 16 digits.\n";
+        return false;
+    }
+    for (char c : cardNumber) 
+    {
+        if (!isdigit(c)) 
+        {
+            std::cout << "Invalid card number! Card number must contain only digits.\n";
+            return false;
+        }
+    }
+    return true;
+}
+
+bool validateUPI(const std::string& upiID) 
+{
+    if (upiID.find('@') == std::string::npos) 
+    {
+        std::cout << "Invalid UPI ID! Must contain '@'.\n";
+        return false;
+    }
+    return true;
+}
+
+bool processPayment() 
+{
+    int paymentChoice;
+    std::cout << "\n--- Payment Options ---\n";
+    std::cout << "1. Credit/Debit Card\n";
+    std::cout << "2. UPI\n";
+    std::cout << "3. Net Banking\n";
+    std::cout << "Choose your payment method: ";
+    std::cin >> paymentChoice;
+
+    switch (paymentChoice) 
+    {
+        case 1: 
+        {
+            std::string cardNumber;
+            std::cout << "Enter Credit/Debit Card Number: ";
+            std::cin >> cardNumber;
+            return validateCard(cardNumber);
+        }
+        case 2: 
+        {
+            std::string upiID;
+            std::cout << "Enter UPI ID: ";
+            std::cin >> upiID;
+            return validateUPI(upiID);
+        }
+        case 3: 
+        {
+            std::string username, password;
+            std::cout << "Enter Net Banking Username: ";
+            std::cin >> username;
+            std::cout << "Enter Password: ";
+            std::cin >> password;
+            std::cout << "Payment processed successfully via Net Banking!\n";
+            return true;
+        }
+        default:
+            std::cout << "Invalid payment option selected!\n";
+            return false;
+    }
+}
+
+void saveTrainsToFile(const std::vector<Train>& trains) 
+{
+    std::ofstream outFile("trains.txt");
+    if (outFile.is_open()) 
+    {
+        for (const auto& train : trains) 
+        {
+            outFile << train.getTrainID() << "\n"
+                    << train.getTrainName() << "\n"
+                    << train.getSource() << "\n"
+                    << train.getDestination() << "\n"
+                    << train.getTicketPrice() << "\n"
+                    << train.getAvailableSeats() << "\n"
+                    << train.getDepartureTime() << "\n"
+                    << train.getPlatformNumber() << "\n";
+        }
+        outFile.close();
+    }
+     else 
+    {
+        std::cout << "Error opening file to save trains!\n";
+    }
+}
+
+void loadTrainsFromFile(std::vector<Train>& trains) 
+{
+    std::ifstream inFile("trains.txt");
+    if (inFile.is_open()) 
+    {
+        int id, seats;
+        double price;
+        std::string name, source, destination, time, platform;
+
+        while (inFile >> id) 
+        {
+            inFile.ignore();
+            std::getline(inFile, name);
+            std::getline(inFile, source);
+            std::getline(inFile, destination);
+            inFile >> price >> seats;
+            inFile.ignore();
+            std::getline(inFile, time);
+            std::getline(inFile, platform);
+
+            trains.emplace_back(id, name, source, destination, price, seats, time, platform);
+        }
+        inFile.close();
+    }
+     else
+    {
+        std::cout << "No saved train data found.\n";
+    }
+}
+
+void saveTicketsToFile(const std::vector<Ticket>& tickets) 
+{
+    std::ofstream outFile("tickets.txt");
+    if (outFile.is_open()) 
+    {
+        for (const auto& ticket : tickets) 
+        {
+            outFile << ticket.getTicketID() << "\n"
+                    << ticket.getTrainID() << "\n"
+                    << ticket.getPassengerName() << "\n"
+                    << ticket.getSeatNumber() << "\n"
+                    << ticket.getTicketPrice() << "\n"
+                    << ticket.getDepartureTime() << "\n"
+                    << ticket.getPlatformNumber() << "\n";
+        }
+        outFile.close();
+    } 
+    else 
+    {
+        std::cout << "Error opening file to save tickets!\n";
+    }
+
+}
+
+void loadTicketsFromFile(std::vector<Ticket>& tickets) 
+{
+    std::ifstream inFile("tickets.txt");
+    if (inFile.is_open()) 
+    {
+        int ticketID, trainID, seatNumber;
+        double price;
+        std::string passengerName, time, platform;
+
+        while (inFile >> ticketID) 
+        {
+            inFile >> trainID;
+            inFile.ignore();
+            std::getline(inFile, passengerName);
+            inFile >> seatNumber >> price;
+            inFile.ignore();
+            std::getline(inFile, time);
+            std::getline(inFile, platform);
+
+            tickets.emplace_back(ticketID, trainID, passengerName, seatNumber, price, time, platform);
+        }
+        inFile.close();
+    }
+     else 
+     {
+        std::cout << "No saved ticket data found.\n";
+    }
+}
+
+void displayTrains(const std::vector<Train>& trains) 
+{
+    std::cout << "\n--- Available Trains ---\n";
+
+    for (const auto& train : trains) 
+    {
+        train.displayDetails();
+    }
+}
+
+void bookTicket(std::vector<Train>& trains, std::vector<Ticket>& tickets) 
+{
+    int trainID;
+
+    std::string passengerName;
+
+    std::cout << "Enter Train ID to book: ";
+    std::cin >> trainID;
+
+    Train* selectedTrain = nullptr;
+    for (auto& train : trains) 
+    {
+        if (train.getTrainID() == trainID) 
+        {
+            selectedTrain = &train;
+            break;
+        }
+    }
+
+    if (!selectedTrain) 
+    {
+        std::cout << "Train not found!\n";
+        return;
+    }
+
+    if (selectedTrain->getAvailableSeats() == 0) 
+    {
+        std::cout << "No seats available on this train!\n";
+        return;
+    }
+
+    std::cout << "Enter Passenger Name: ";
+    std::cin.ignore();
+    std::getline(std::cin, passengerName);
+
+    std::cout << "Available Seats: ";
+    selectedTrain->displayAvailableSeats();
+    std::cout << "Choose your seat number: ";
+    int seatNumber;
+    std::cin >> seatNumber;
+
+    if (seatNumber < 1 || seatNumber > selectedTrain->getAvailableSeats() || !selectedTrain->isSeatAvailable(seatNumber)) 
+    {
+        std::cout << "Invalid or already booked seat number!\n";
+        return;
+    }
+
+    if (!processPayment()) 
+    {
+        return;
+    }
+
+    selectedTrain->bookSeat(seatNumber);
+    int ticketID = tickets.size() + 1;
+    tickets.emplace_back(ticketID, trainID, passengerName, seatNumber, selectedTrain->getTicketPrice(), selectedTrain->getDepartureTime(), selectedTrain->getPlatformNumber());
+
+    tickets.back().displayTicketDetails();
+    std::cout << "Ticket booked successfully!\n";
+
+    saveTrainsToFile(trains);
+    saveTicketsToFile(tickets);
+}
+
+void cancelTicket(std::vector<Train>& trains, std::vector<Ticket>& tickets) 
+{
+    int ticketID;
+    std::cout << "Enter Ticket ID to cancel: ";
+    std::cin >> ticketID;
+
+    auto ticketIt = tickets.end();
+    for (auto it = tickets.begin(); it != tickets.end(); ++it) 
+    {
+        if (it->getTicketID() == ticketID) 
+        {
+            ticketIt = it;
+            break;
+        }
+    }
+
+    if (ticketIt == tickets.end()) 
+    {
+        std::cout << "Ticket not found!\n";
+        return;
+    }
+
+    auto trainIt = trains.end();
+    for (auto it = trains.begin(); it != trains.end(); ++it) 
+    {
+        if (it->getTrainID() == ticketIt->getTrainID()) 
+        {
+            trainIt = it;
+            break;
+        }
+    }
+
+    if (trainIt == trains.end()) 
+    {
+        std::cout << "Associated train not found!\n";
+        return;
+    }
+
+    trainIt->cancelSeat(ticketIt->getSeatNumber());
+    tickets.erase(ticketIt);
+
+    std::cout << "Ticket canceled successfully!\n";
+
+    saveTrainsToFile(trains);
+    saveTicketsToFile(tickets);
+}
+
+void searchTicket(const std::vector<Ticket>& tickets) 
+{
+    int ticketID;
+    std::cout << "Enter Ticket ID to search: ";
+    std::cin >> ticketID;
+
+    for (const auto& ticket : tickets) 
+    {
+        if (ticket.getTicketID() == ticketID) 
+        {
+            ticket.displayTicketDetails();
+            return;
+        }
+    }
+
+    std::cout << "Ticket not found!\n";
+}
+
+void displayAllTickets(const std::vector<Ticket>& tickets) 
+{
+    if (tickets.empty()) 
+    {
+        std::cout << "No tickets booked yet.\n";
+        return;
+    }
+
+    std::cout << "\n--- All Tickets ---\n";
+    for (const auto& ticket : tickets) 
+    {
+        ticket.displayTicketDetails();
+    }
+}
+void addStation(std::vector<Station>& stations) 
+{
+    int id, platforms;
+    std::string name;
+
+    std::cout << "Enter Station ID: ";
+    std::cin >> id;
+    std::cin.ignore();
+
+    std::cout << "Enter Station Name: ";
+    std::getline(std::cin, name);
+
+    std::cout << "Enter Number of Platforms: ";
+    std::cin >> platforms;
+
+    stations.emplace_back(id, name, platforms);
+    std::cout << "Station added successfully!\n";
+}
+
+// View Stations Function
+void viewStations(const std::vector<Station>& stations)
+ {
+    std::cout << "\n--- List of Stations ---\n";
+    for (const auto& station : stations)
+     {
+        station.displayStation();
+    }
+}
+
+// Save Stations to File
+void saveStationsToFile(const std::vector<Station>& stations)
+ {
+    std::ofstream outFile("stations.txt");
+    for (const auto& station : stations) 
+    {
+        station.saveToFile(outFile);
+    }
+    outFile.close();
+}
+
+// Load Stations from File
+void loadStationsFromFile(std::vector<Station>& stations) 
+{
+    std::ifstream inFile("stations.txt");
+    if (!inFile.is_open()) return;
+
+    stations.clear();
+    while (inFile.peek() != EOF) 
+    {
+        stations.push_back(Station::loadFromFile(inFile));
+    }
+
+    inFile.close();
+}
+
+// Search Station Function
+void searchStation(const std::vector<Station>& stations) 
+{
+    int id;
+    std::cout << "Enter Station ID to search: ";
+    std::cin >> id;
+
+    auto it = std::find_if(stations.begin(), stations.end(), [id](const Station& station) 
+    {
+        return station.getStationID() == id;
+    }
+    );
+
+    if (it != stations.end()) 
+    {
+        std::cout << "Station Found:\n";
+        it->displayStation();
+    } 
+    else 
+    {
+        std::cout << "Station with ID " << id << " not found.\n";
+    }
+}
+void example1() 
+{
+    for (int i = 1; i <= 10; ++i) 
+    {
+     std::cout << "Number: " << i ;
+    }
+}
+
+
+void example2() {
+    for (int i = 10; i >= 1; --i) 
+    {
+        std::cout << "Reverse Number: " << i ;
+    }
+}
+
+
+void example3() 
+{
+    int arr[] = {10, 20, 30, 40, 50};
+    for (int i = 0; i < 5; ++i) 
+    {
+       std:: cout << "Element at index " << i << ": " << arr[i];
+    }
+}
+
+
+void example4() 
+{
+    for (int i = 1; i <= 5; ++i) 
+    {
+        for (int j = 1; j <= i; ++j) 
+        {
+           std:: cout << "*";
+        }
+        std::cout;
+    }
+}
+
+
+void example5() 
+{
+    int n = 4;
+    for (int i = 1; i <= n; ++i) 
+    {
+        for (int j = 1; j <= n; ++j) 
+        {
+           std:: cout << i * j << "\t";
+        }
+        
+    }
+}
+
+
+void example6() 
+{
+    int n=2,numbers[4] = {3, 6, 9, 12};
+    for (int i = 0; i < n; ++i) 
+    {
+        std::cout << "Vector Element [" << i << "]: " << numbers[i] ;
+    }
+}
+
+
+void example7() 
+{
+   int n=2,numbers[4] = {3, 6, 9, 12};
+    for (int i = n - 1; i >= 0; --i) 
+    {
+        std::cout << "Reversed Vector Element [" << i << "]: " << numbers[i];
+    }
+}
+
+
+void example8() 
+{
+    for (int i = 1; i <= 10; ++i) 
+    {
+        for (int j = 1; j <= 10; ++j) 
+        {
+            std::cout << i * j << "\t";
+        }
+        
+    }
+}
+
+
+void example9() 
+{
+    char str[6]  = "madam";
+    bool isPalindrome = true;
+    for (int i = 0, j = str[6] - 1; i < j; ++i, --j) 
+    {
+        if (str[i] != str[j]) 
+        {
+            isPalindrome = false;
+            break;
+        }
+    }
+    std::cout << (isPalindrome ? "Palindrome" : "Not a Palindrome");
+}
+
+
+void example10() 
+{
+    int sum = 0;
+    for (int i = 1; i <= 5; ++i) 
+    {
+        sum += i * i;
+    }
+    std::cout << "Sum of squares: " << sum ;
+}
+
+
+void example11() 
+{
+    int n = 10;
+    int t1 = 0, t2 = 1, nextTerm;
+   std:: cout << "Fibonacci Series: ";
+    for (int i = 1; i <= n; ++i) 
+    {
+        std::cout << t1 << " ";
+        nextTerm = t1 + t2;
+        t1 = t2;
+        t2 = nextTerm;
+    }
+std::    cout;
+}
+
+
+void example12() 
+{
+    int num = 29;
+    bool isPrime = true;
+    for (int i = 2; i <5; ++i) 
+    {
+        if (num % i == 0) 
+        {
+            isPrime = false;
+            break;
+        }
+    }
+   std:: cout << (isPrime ? "Prime Number" : "Not a Prime Number") ;
+}
+
+
+void example13() 
+{
+    int arr[3][3] = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+    for (int i = 0; i < 3; ++i) 
+    {
+        for (int j = 0; j < 3; ++j) 
+        {
+            std::cout << arr[i][j] << " ";
+        }
+  std::      cout ;
+    }
+}
+
+
+void example14() 
+{
+    char str[20] = "hello world";
+    int vowelCount = 0;
+    for (char c : str) 
+    {
+        if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u') 
+        {
+            ++vowelCount;
+        }
+    }
+    std::cout << "Number of vowels: " << vowelCount;
+}
+
+
+void example15() 
+{
+    char str[20] = "hello";
+    for (int i = 20 - 1; i >= 0; --i) 
+    {
+        std::cout << str[i];
+    }
+    std::cout ;
+}
+
+
+void example16() 
+{
+    int rows = 5;
+    for (int i = 0; i < rows; ++i) 
+    {
+        int val = 1;
+        for (int j = 0; j <= i; ++j) 
+        {
+std::            cout << val << " ";
+            val = val * (i - j) / (j + 1);
+        }
+    std::    cout ;
+    }
+}
+
+
+void example17() 
+{
+    for (int i = 1; i <= 20; i += 2) 
+    {
+    std::    cout << i << " ";
+    }
+    std::cout ;
+}
+
+
+void example18() 
+{
+    int n = 5;
+    int factorial = 1;
+    for (int i = 1; i <= n; ++i) 
+    {
+        factorial *= i;
+    }
+  std::  cout << "Factorial: " << factorial ;
+}
+
+
+void example19() 
+{
+  int n=2,numbers[4] = {3, 6, 9, 12};
+    int maxVal = n;
+    for (int i = 1; i < n; ++i) 
+    {
+        if (n > maxVal) 
+        {
+            maxVal = n;
+        }
+    }
+   std:: cout << "Maximum value: " << maxVal ;
+}
+
+
+void example20() 
+{
+    for (int i = 2; i <= 20; i += 2) 
+    {
+       std:: cout << i << " ";
+    }
+    
+}
+void railwayStopPredictionSystem();
+// Declaration
+
+class Graph
+{
+private:
+    // The adjacency list to store the graph
+    // Key: Station name (string)
+    //Value: List of connections (pairs of station and its properties)
+    unordered_map<string, list<pair<string, pair<int, pair<int, double>>>>> adjList;
+
+public:
+    // Add a station to the railway network
+    void addStation(const string& station)
+
+    {
+    adjList[station] = list<pair<string, pair<int, pair<int, double>>>>();
+    // Initialize the station with no connections
+    }
+
+    // Add a connection between two stations with their distance, slow time, fast time, and cost
+    void addConnection(const string& station1, const string& station2, int distance, int slowTime, int fastTime, double cost)
+
+    {
+        // Adding a bidirectional connection (both ways)
+        adjList[station1].push_back({station2, {distance, {slowTime, cost}}});
+        adjList[station2].push_back({station1, {distance, {fastTime, cost}}});
+    }
+
+    // Find the route between the starting and ending stations based on the train type (slow/fast)
+
+    void findRoute(const string& start, const string& end, const string& type)
+
+    {
+        // Check if both start and end stations are valid
+        if (adjList.find(start) == adjList.end() || adjList.find(end) == adjList.end())
+
+        {
+            cout << "Invalid start or end station." << endl;
+            return;
+        }
+
+        // Data structures to keep track of visited stations and the results (distance, time, cost)
+        unordered_map<string, bool> visited;
+        unordered_map<string, pair<int, pair<int, double>>> results;
+
+        // Initialize results for each station with maximum distance and zero time/cost
+        for (const auto& station : adjList)
+
+        {
+            results[station.first] = {numeric_limits<int>::max(), {0, 0.0}};
+        }
+
+        // Start station has 0 distance, 0 time, and 0 cost
+        results[start] = {0, {0, 0.0}};
+
+        // Queue to process the stations during the search
+        list<string> queue;
+        queue.push_back(start);
+
+        // Process stations in a breadth-first manner
+        while (!queue.empty())
+
+            {
+            string current = queue.front();
+            queue.pop_front();
+            visited[current] = true;
+
+        // Check all neighbors (connected stations) of the current station
+        for (const auto& neighbor : adjList[current])
+
+            {
+                const string& nextStation = neighbor.first;
+                int distance = neighbor.second.first;
+                int time = (type == "slow") ? neighbor.second.second.first : neighbor.second.second.second;
+                double cost = neighbor.second.second.second;
+
+                // If a shorter route is found, update the results and add the station to the queue
+                if (!visited[nextStation] && results[current].first + distance < results[nextStation].first)
+                {
+                    results[nextStation] =
+
+                    {
+                        results[current].first + distance,
+
+                        {
+                            results[current].second.first + time, results[current].second.second + cost
+                        }
+
+                    };
+                    queue.push_back(nextStation);
+                }
+            }
+        }
+
+        // Display the results for the end station
+        displayResults(end, results);
+    }
+
+    // Display the results for a given destination station
+    void displayResults(const string& end, unordered_map<string, pair<int, pair<int, double>>>& results)
+
+    {
+        if (results[end].first == numeric_limits<int>::max())
+
+        {
+            cout << "No route found from the starting station to " << end << "." << endl;
+        }
+
+        else
+
+        {
+            cout << "Total Distance: " << results[end].first << " km" << endl;
+            cout << "Total Time: " << results[end].second.first << " minutes" << endl;
+            cout << "Total Cost( in rupees ): " << fixed << setprecision(2) << results[end].second.second << endl;
+        }
+    }
+
+    // Display all stations in the railway network
+    void displayStations() const
+
+    {
+    // Welcome message for the station display function
+    cout << "*\n";
+    cout << "*         Welcome to the Station Viewer!             *\n";
+    cout << "* Discover the amazing stations in our network.      *\n";
+    cout << "*\n\n";
+
+    // Inform the user about the upcoming station list
+    cout << "Here is the list of stations in the railway network:\n";
+    cout << "Get ready to explore your next travel destination!\n\n";
+
+    // Display each station in the network
+    for (const auto& station : adjList)
+    {
+        cout << "- " << station.first << endl;
+    }
+
+    // Friendly reminder to choose a station
+    cout << "\nTake your time to note down the station names you need.\n";
+    cout << "Every station has a story waiting to be explored!\n";
+
+    // Exit message for the function
+    cout << "\n*\n";
+    cout << "*   Thank you for checking out our station list!      *\n";
+    cout << "*   Plan your journey and create unforgettable memories! *\n";
+    cout << "*\n";
+}
+
+
+    // Display all connections between stations in the railway network
+    void displayConnections() const
+
+    {
+    // Display a warm welcome message for this functionality
+    cout << "*\n";
+    cout << "*      Welcome to the Railway Network Viewer!        *\n";
+    cout << "*    Discover all the connections in the network.    *\n";
+    cout << "*\n\n";
+
+    // Inform the user about the purpose of this function
+    cout << "Connections in the railway network are as follows:\n";
+    cout << "Each connection represents a direct route between two stations.\n";
+    cout << "Plan your journey wisely and enjoy the seamless travel experience!\n";
+
+    // Loop through each station in the adjacency list to display connections
+    for (const auto& station : adjList)
+    {
+        // Loop through each connection for the current station
+        for (const auto& connection : station.second)
+        {
+            // Display the connection details in a user-friendly format
+            cout << station.first << " <--> " << connection.first
+                 << " (Distance: " << connection.second.first << " km)" << endl;
+        }
+    }
+
+    // Add a motivational closing line for the user
+    cout << "\nExploration leads to discovery! With every connection, a new journey awaits.\n";
+
+    // Display a friendly closing message
+    cout << "\n*\n";
+    cout << "*     Thank you for exploring the network with us!    *\n";
+    cout << "*      May your travels be exciting and safe!         *\n";
+    cout << "*\n";
+}
+
+    // Display specific details about a station
+    void displayStationDetails(const string& stationName) const
+
+    {
+    // Display a warm welcome message
+    cout << "*\n";
+    cout << "*     Welcome to the Station Details Viewer!           *\n";
+    cout << "*     Discover all the connections and routes ahead.   *\n";
+    cout << "*\n\n";
+
+    // Check if the station exists in the network
+    if (adjList.find(stationName) == adjList.end())
+    {
+        // Display an error message if the station is not found
+        cout << "Station not found. Please double-check the station name.\n";
+        cout << "Remember, every journey starts with the right information!\n";
+        return;
+    }
+
+    // Display details about the selected station
+    cout << "Details for station: " << stationName << endl;
+
+    // Iterate over the connections and display them
+    for (const auto& connection : adjList.at(stationName))
+    {
+        cout << "Connected to: " << connection.first
+             << ", Distance: " << connection.second.first << " km, "
+             << "Slow time: " << connection.second.second.first << " mins, "
+             << "Fast time: " << connection.second.second.second << " mins, "
+             << "Cost: ₹" << fixed << setprecision(2) << connection.second.second.second << endl;
+    }
+
+    // Motivational message after showing the connections
+    cout << "\nExplore your options! Every connection leads to new possibilities.\n";
+
+    // Add a friendly closing message
+    cout << "\n*\n";
+    cout << "*   Thank you for exploring the station details with us! *\n";
+    cout << "*   May your journey be filled with great memories.      *\n";
+    cout << "*\n";
+}
+
+    // Remove a station from the network
+    void removeStation(const string& stationName)
+
+     {
+    // Welcome message to introduce the action
+    cout << "*\n";
+    cout << "*    Welcome to the Station Removal Tool!            *\n";
+    cout << "*    Let's make the network more efficient together. *\n";
+    cout << "*\n";
+
+    // Check if the station exists in the network
+    if (adjList.find(stationName) == adjList.end())
+    {
+        // Motivational error message
+        cout << "Uh-oh! Station not found in the network.\n";
+        cout << "Don't worry, every journey begins with a step. Try again!\n";
+        return;
+    }
+
+    // Remove the station from the adjacency list
+    adjList.erase(stationName);
+
+    // Inform the user about the removal process
+    cout << "\nRemoving connections to \"" << stationName << "\" from the network...\n";
+
+    // Remove any connections to this station from other stations
+    for (auto& station : adjList)
+    {
+        station.second.remove_if([stationName](const pair<string, pair<int, pair<int, double>>>& connection) {
+            return connection.first == stationName;
+    }
+    );
+    }
+
+    // Success message for station removal
+    cout << "Station \"" << stationName << "\" has been successfully removed from the network.\n";
+    cout << "Great job! The network is now leaner and more optimized.\n";
+
+    // Farewell message to end on a positive note
+    cout << "*\n";
+    cout << "*    Thank you for maintaining the railway network!   *\n";
+    cout << "*    Together, we create a seamless travel experience.*\n";
+    cout << "*\n";
+}
+
+
+
+    // Update the cost of a connection between two stations
+    void updateConnectionCost(const string& station1, const string& station2, double newCost)
+    {
+    // Display a welcome message
+    cout << "*\n";
+    cout << "*     Welcome to the Connection Cost Updater!         *\n";
+    cout << "*     Let's ensure the most accurate cost data.       *\n";
+    cout << "*\n\n";
+
+    // Indicate the start of the update process
+    cout << "Initiating the process to update the connection cost...\n";
+    cout << "Checking connections between " << station1 << " and " << station2 << "...\n";
+
+    bool connectionFound = false; // Flag to track if the connection is found
+
+    // Traverse the adjacency list for the first station
+    for (auto& connection : adjList[station1])
+    {
+        if (connection.first == station2) // If the connection matches
+        {
+            connection.second.second.second = newCost; // Update the cost
+            connectionFound = true;
+            break;
+        }
+    }
+
+    // Traverse the adjacency list for the second station
+    for (auto& connection : adjList[station2])
+    {
+        if (connection.first == station1) // If the connection matches
+        {
+            connection.second.second.second = newCost; // Update the cost
+            connectionFound = true;
+            break;
+        }
+    }
+
+    // Check the result of the update
+    if (connectionFound)
+    {
+        cout << "Success! The connection cost has been updated to " << newCost << " units.\n";
+        cout << "Thank you for keeping our data up-to-date!\n";
+    }
+    else
+    {
+        cout << "Oops! Connection not found between " << station1 << " and " << station2 << ".\n";
+        cout << "Double-check the station names and try again.\n";
+    }
+
+    // Display an exit message
+    cout << "\n*\n";
+    cout << "* Thank you for using the Connection Cost Updater!    *\n";
+    cout << "* Accuracy today leads to smoother journeys tomorrow. *\n";
+    cout << "*\n";
+}
+
+    // Function to suggest train preference based on time and cost
+   void suggestTrain(const string& start, const string& end)
+
+    {
+    // Welcome the user and explain the purpose of the function
+    cout << "*\n";
+    cout << "*   Welcome to the Train Suggestion Tool!            *\n";
+    cout << "*   Let's find the best train option for you.        *\n";
+    cout << "*\n\n";
+
+    // Check if the start or end station is valid
+    if (adjList.find(start) == adjList.end() || adjList.find(end) == adjList.end())
+    {
+        cout << "Oops! One or both of the stations you entered are invalid. Please try again." << endl;
+        return; // Exit if invalid stations are provided
+    }
+
+    // Variables to store the best train options
+    string bestTrain = "No suitable train found";
+    double minCost = numeric_limits<double>::max();
+    int minTime = numeric_limits<int>::max();
+
+    // Explain to the user what the function is doing
+    cout << "Searching for the best train options between " << start << " and " << end << "...\n";
+    cout << "We are considering time, cost, and your preferences to suggest the perfect train.\n";
+
+    // Iterate through the adjacency list for the starting station
+    for (const auto& neighbor : adjList[start])
+    {
+        const string& nextStation = neighbor.first;
+
+        // Check if the next station matches the destination
+        if (nextStation == end)
+        {
+            int slowTime = neighbor.second.second.first; // Slow train time
+            int fastTime = neighbor.second.second.second; // Fast train time
+            double cost = neighbor.second.second.second;  // Cost of travel
+
+            // Check for slow train preference
+            if (slowTime < minTime || (slowTime == minTime && cost < minCost))
+            {
+                bestTrain = "Slow Train";
+                minTime = slowTime;
+                minCost = cost;
+            }
+
+            // Check for fast train preference
+            if (fastTime < minTime || (fastTime == minTime && cost < minCost))
+            {
+                bestTrain = "Fast Train";
+                minTime = fastTime;
+                minCost = cost;
+            }
+        }
+    }
+
+    // Display the best train option to the user
+    cout << "\nYour best train option has been identified!\n";
+    cout << "Suggested train from " << start << " to " << end << ": " << bestTrain << endl;
+
+    if (bestTrain != "No suitable train found")
+    {
+        cout << "Time: " << minTime << " minutes, Cost: ₹" << fixed << setprecision(2) << minCost << endl;
+        cout << "Enjoy your journey! Remember, every train ride is an adventure waiting to unfold.\n";
+    }
+    else
+    {
+        cout << "Unfortunately, no suitable train was found for your journey. Please try a different route or station.\n";
+    }
+
+    // Exit message to end the interaction
+    cout << "\n*\n";
+    cout << "*   Thank you for using the Train Suggestion Tool!    *\n";
+    cout << "*   Wishing you a safe and pleasant journey ahead.    *\n";
+    cout << "*\n";
+}
+
+// Function to display details of a specific train
+    void displayTrainDetails(const string& start, const string& end)
+    {
+
+        if (adjList.find(start) == adjList.end() || adjList.find(end) == adjList.end())
+
+        {
+            cout << "Invalid start or end station." << endl;
+            return;
+        }
+
+        for (const auto& neighbor : adjList[start])
+
+            {
+            const string& nextStation = neighbor.first;
+            if (nextStation == end)
+            {
+                auto details = neighbor.second;
+                int distance = details.first;
+                int slowTime = details.second.first;
+                int fastTime = details.second.second;
+                double cost = details.second.second;
+
+                cout << "Train Details:" << endl;
+                cout << "Route: " << start << " to " << end << endl;
+                cout << "Distance: " << distance << " km" << endl;
+                cout << "Slow Train Time: " << slowTime << " minutes" << endl;
+                cout << "Fast Train Time: " << fastTime << " minutes" << endl;
+                cout << "Cost: ₹" << fixed << setprecision(2) << cost << endl;
+                return;
+            }
+        }
+
+        cout << "No train found between the given stations." << endl;
+    }
+
+
+ // Function to display seat availability between two stations
+    void displaySeatAvailability(const string& station1, const string& station2)
+
+    {
+        if (adjList.find(station1) == adjList.end() || adjList.find(station2) == adjList.end())
+        {
+            cout << "Invalid stations. Please check your input." << endl;
+            return;
+        }
+
+        // Simulate random seat availability
+        srand(time(0));
+         // Seed the random number generator
+        int slowSeats = rand() % 100 + 1;
+        // Random seats for slow train (1-100)
+        int fastSeats = rand() % 50 + 1;
+         // Random seats for fast train (1-50)
+
+        cout << "Seat Availability between " << station1 << " and " << station2 << ":" << endl;
+        cout << "Slow Train: " << slowSeats << " seats available" << endl;
+        cout << "Fast Train: " << fastSeats << " seats available" << endl;
+    }
+  // Function that encapsulates the entire program functionality
+  void railwayStopPredictionSystem() {
+    // Predefined train data
+    map<string, string> stationData = {
+        {"TRN001", "Karnataka Express | Bengaluru -> Mumbai | Distance: 750.5 km | Speed: 99 km/h | Departure: 10:30 AM | Platform: 1"},
+        {"TRN002", "Mysuru Express | Mysuru -> Chennai | Distance: 600 km | Speed: 120 km/h | Departure: 6:45 AM | Platform: 2"},
+        {"TRN003", "Udaya Express | Bengaluru -> Mangaluru | Distance: 550 km | Speed: 100 km/h | Departure: 7:15 AM | Platform: 3"},
+        {"TRN004", "Rajdhani Express | Bengaluru -> Delhi | Distance: 2200 km | Speed: 79 km/h | Departure: 5:00 PM | Platform: 4"},
+        {"TRN005", "Shatabdi Express | Mysuru -> Bengaluru | Distance: 450 km | Speed: 130 km/h | Departure: 2:30 PM | Platform: 4"},
+        {"TRN006", "Hampi Express | Hubballi -> Mysuru | Distance: 500 km | Speed: 73 km/h | Departure: 8:00 PM | Platform: 3"},
+        {"TRN007", "Basava Express | Bagalkot -> Bengaluru | Distance: 650 km | Speed: 110 km/h | Departure: 9:00 PM | Platform: 2"},
+        {"TRN008", "Gol Gumbaz Express | Vijayapura -> Mysuru | Distance: 700 km | Speed: 95 km/h | Departure: 9:30 PM | Platform: 1"},
+        {"TRN009", "Intercity Express | Bengaluru -> Hubballi | Distance: 350 km | Speed: 150 km/h | Departure: 6:00 AM | Platform: 2"},
+        {"TRN010", "Rani Chennamma Express | Bengaluru -> Kolhapur | Distance: 800 km | Speed: 85 km/h | Departure: 11:45 PM | Platform: 1"},
+        {"TRN011", "Sharavathi Express | Bengaluru -> Shimoga | Distance: 400 km | Speed: 110 km/h | Departure: 7:00 PM | Platform: 5"},
+        {"TRN012", "Kannur Express | Mysuru -> Kannur | Distance: 550 km | Speed: 95 km/h | Departure: 10:15 PM | Platform: 3"},
+        {"TRN013", "Tungabhadra Express | Hubballi -> Secunderabad | Distance: 850 km | Speed: 100 km/h | Departure: 5:30 AM | Platform: 1"},
+        {"TRN014", "Karwar Express | Bengaluru -> Karwar | Distance: 1000 km | Speed: 70 km/h | Departure: 9:00 PM | Platform: 4"},
+        {"TRN015", "Malnad Express | Shivamogga -> Bengaluru | Distance: 300 km | Speed: 120 km/h | Departure: 6:15 AM | Platform: 5"},
+        {"TRN016", "Bijapur Passenger | Bijapur -> Bagalkot | Distance: 200 km | Speed: 180 km/h | Departure: 6:45 AM | Platform: 2"},
+        {"TRN017", "Vishwamanava Express | Bengaluru -> Mysuru | Distance: 150 km | Speed: 200 km/h | Departure: 6:00 AM | Platform: 1"},
+        {"TRN018", "Hospet Passenger | Hospet -> Bengaluru | Distance: 350 km | Speed: 130 km/h | Departure: 9:15 PM | Platform: 4"},
+        {"TRN019", "Harihar Express | Harihar -> Bengaluru | Distance: 300 km | Speed: 140 km/h | Departure: 7:30 AM | Platform: 1"},
+        {"TRN020", "Belagavi Express | Belagavi -> Bengaluru | Distance: 750 km | Speed: 90 km/h | Departure: 6:00 PM | Platform: 2"}
+    };
+
+    // Initialize random number generator once
+    srand(static_cast<unsigned>(time(0)));
+
+    // Welcome message
+    cout << "\nWelcome to the Railway Stop Prediction System!\n";
+    cout << "We strive to provide accurate and reliable updates on train stops.\n";
+    cout << "----------------------------------------------------------\n\n";
+
+    // Display random motivational quote
+    vector<string> quotes =
+    {
+        "Stay on track and enjoy your journey!",
+        "Every station is a new opportunity.",
+        "Traveling by train is the art of exploring.",
+        "Next stop: your dreams!",
+        "Don’t miss the train of life."
+    };
+    string randomQuote = quotes[rand() % quotes.size()];
+    cout << "\nQuote of the Day: " << randomQuote << "\n\n";
+
+    string destination, trainID, currentStationID;
+    char choice;
+
+    do
+        {
+        // Input for destination
+        cout << "Enter the destination: ";
+        cin.ignore();
+        string destination;
+        getline(cin, destination);
+
+        // Input for train ID
+        cout << "Enter the train ID: ";
+        getline(cin, trainID);
+
+        // Input for current station ID
+        cout << "Enter the current station ID: ";
+        getline(cin, currentStationID);
+
+        // Simulate random chance of train not stopping
+        int stopChance = rand() % 10;
+        // 0-9, 20% chance train won't stop
+        if (stopChance < 2)
+
+        {
+            cout << "\nThe train will not stop at the next station.\n";
+            cout << "Please check the updated train schedule for further details.\n";
+        }
+        else
+            {
+            // Collect all station IDs into a vector
+            vector<string> stationIDs;
+            for (const auto& pair : stationData)
+            {
+                stationIDs.push_back(pair.first);
+            }
+
+            // Pick a random station ID from the list
+            string nextStationID = stationIDs[rand() % stationIDs.size()];
+
+            // Ensure the next station is different from the current one
+            while (nextStationID == currentStationID)
+            {
+                nextStationID = stationIDs[rand() % stationIDs.size()];
+            }
+
+            // Display the next station
+            cout << "\n--- Next Railway Stop ---\n";
+            cout << "Destination: " << destination << endl;
+            cout << "Train ID: " << trainID << endl;
+            cout << "Current Station: " << stationData[currentStationID] << " (" << currentStationID << ")" << endl;
+            cout << "Next Station: " << stationData[nextStationID] << " (" << nextStationID << ")" << endl;
+            cout << "--------------------------\n";
+            cout << "Make sure to be ready at the platform on time!\n";
+            cout << "Safe travels!\n";
+        }
+
+        // Ask if the user wants to check another train
+        cout << "\nWould you like to check another train? (y/n): ";
+        cin >> choice;
+        cin.ignore();
+         // Clear the input buffer
+
+        if (tolower(choice) == 'y')
+        {
+            cout << "\nFetching details for the next query...\n\n";
+        }
+
+    }
+    while (tolower(choice) == 'y');
+
+    // Exit message
+    cout << "\nThank you for using the Railway Stop Prediction System!\n";
+    cout << "We hope you have a pleasant journey ahead.\n";
+    cout << "----------------------------------------------------------\n\n";
+}
+      void findTrainJourney()
+  {
+    // Define station details structure
+    struct Station
+    {
+        string name;
+        string id;
+    };
+
+    // Define train connection structure
+    struct TrainConnection
+    {
+        string from_station;
+        string to_station;
+        double distance;
+        string departure_time;
+        string arrival_time;
+    };
+
+    // Seed random number generator for quotes
+    srand(static_cast<unsigned int>(time(0)));
+
+    // Motivational quotes using a lambda
+    auto getMotivationalQuote = []()
+     {
+        vector<string> quotes =
+        {
+            "The journey of a thousand miles begins with a single step.",
+
+            "Trains are not just a mode of transport, they are a way to explore new horizons.",
+
+            "Every stop is a new opportunity to discover something beautiful.",
+
+            "The train to success always runs on time, and it's never late for hard work.",
+
+            "Travel is the only thing you can buy that makes you richer.",
+
+            "Don't count the days; make the days count!",
+
+            "Life is like a train journey: enjoy the ride, no matter the destination.",
+
+            "No journey is too long if you find joy along the way.",
+
+            "Trains remind us that moving forward is the key to growth and discovery.",
+
+            "The tracks of life lead to destinations you never imagined—keep riding."
+        };
+        return quotes[rand() % quotes.size()];
+    };
+
+    // Function to convert a string to uppercase using lambda
+    auto toUpperCase = [](string &str)
+    {
+        transform(str.begin(), str.end(), str.begin(), ::toupper);
+    };
+
+    // Lambda for displaying station details
+    auto displayStationDetails = [](const Station &station)
+    {
+        cout << "Station Name: " << station.name << endl;
+        cout << "Station ID: " << station.id << endl;
+    };
+
+    // Lambda for checking if a station is valid
+    auto isValidStation = [](const map<string, Station>& stations, const string& station_name)
+    {
+        return stations.find(station_name) != stations.end();
+    };
+
+    // Lambda for finding and displaying a train connection
+    auto findConnection = [&](const vector<TrainConnection>& connections, const string& start_station, const string& end_station) -> bool
+    {
+        for (const auto& conn : connections)
+            {
+            string from_station = conn.from_station;
+            string to_station = conn.to_station;
+
+            // Convert station names to uppercase for comparison
+            toUpperCase(from_station);
+            toUpperCase(to_station);
+
+            if ((from_station == start_station && to_station == end_station) ||
+                (from_station == end_station && to_station == start_station))
+                {
+                cout << "\nTrain Connection Found!\n";
+                cout << "From: " << conn.from_station << " (Station ID: STN001)\n";
+                cout << "To: " << conn.to_station << " (Station ID: STN002)\n";
+                cout << "Distance: " << conn.distance << " km\n";
+                cout << "Departure Time: " << conn.departure_time << "\n";
+                cout << "Arrival Time: " << conn.arrival_time << "\n";
+                return true;
+            }
+        }
+        return false;
+    };
+
+    // Stations and connections
+    map<string, Station> stations =
+{
+    {"Bengaluru", {"Bengaluru", "STN001"}},
+    {"Mumbai", {"Mumbai", "STN002"}},
+    {"Mysuru", {"Mysuru", "STN003"}},
+    {"Chennai", {"Chennai", "STN004"}},
+    {"Mangaluru", {"Mangaluru", "STN005"}},
+    {"Delhi", {"Delhi", "STN006"}},
+    {"Hubballi", {"Hubballi", "STN007"}},
+    {"Bagalkot", {"Bagalkot", "STN008"}},
+    {"Vijayapura", {"Vijayapura", "STN009"}},
+    {"Kolhapur", {"Kolhapur", "STN010"}},
+    {"Shimoga", {"Shimoga", "STN011"}},
+    {"Kannur", {"Kannur", "STN012"}},
+    {"Secunderabad", {"Secunderabad", "STN013"}},
+    {"Karwar", {"Karwar", "STN014"}},
+    {"Shivamogga", {"Shivamogga", "STN015"}},
+    {"Bijapur", {"Bijapur", "STN016"}},
+    {"Hospet", {"Hospet", "STN017"}},
+    {"Harihar", {"Harihar", "STN018"}},
+    {"Belagavi", {"Belagavi", "STN019"}}
+};
+
+vector<TrainConnection> connections =
+{
+    {"Bengaluru", "Mumbai", 750.5, "10:30 AM", "07:30 PM"},
+    {"Mysuru", "Chennai", 600, "6:45 AM", "3:45 PM"},
+    {"Bengaluru", "Mangaluru", 550, "7:15 AM", "4:15 PM"},
+    {"Bengaluru", "Delhi", 2200, "5:00 PM", "5:00 PM (Next Day)"},
+    {"Mysuru", "Bengaluru", 450, "2:30 PM", "5:30 PM"},
+    {"Hubballi", "Mysuru", 500, "8:00 PM", "6:00 AM (Next Day)"},
+    {"Bagalkot", "Bengaluru", 650, "9:00 PM", "6:00 AM (Next Day)"},
+    {"Vijayapura", "Mysuru", 700, "9:30 PM", "7:30 AM (Next Day)"},
+    {"Bengaluru", "Hubballi", 350, "6:00 AM", "12:00 PM"},
+    {"Bengaluru", "Kolhapur", 800, "11:45 PM", "10:45 AM (Next Day)"},
+    {"Bengaluru", "Shimoga", 400, "7:00 PM", "12:00 AM"},
+    {"Mysuru", "Kannur", 550, "10:15 PM", "6:15 AM (Next Day)"},
+    {"Hubballi", "Secunderabad", 850, "5:30 AM", "8:30 PM"},
+    {"Bengaluru", "Karwar", 1000, "9:00 PM", "9:00 AM (Next Day)"},
+    {"Shivamogga", "Bengaluru", 300, "6:15 AM", "9:15 AM"},
+    {"Bijapur", "Bagalkot", 200, "6:45 AM", "8:45 AM"},
+    {"Bengaluru", "Mysuru", 150, "6:00 AM", "7:30 AM"},
+    {"Hospet", "Bengaluru", 350, "9:15 PM", "6:15 AM (Next Day)"},
+    {"Harihar", "Bengaluru", 300, "7:30 AM", "12:30 PM"},
+    {"Belagavi", "Bengaluru", 750, "6:00 PM", "6:00 AM (Next Day)"}
+};
+
+
+    // Welcome message
+    cout << "*\n";
+    cout << "*   Welcome to the Lambda-Powered Train Journey Finder!       *\n";
+    cout << "*   Where technology meets your travel dreams.                *\n";
+    cout << "*   Let's find your perfect train journey!                    *\n";
+    cout << "*\n\n";
+
+    cout << "Enter the name of your starting station: ";
+    string start_station, end_station;
+    cin.ignore();
+    getline(cin, start_station);
+    cout << "Enter the name of your destination station: ";
+    getline(cin, end_station);
+
+    string start_station_upper = start_station, end_station_upper = end_station;
+    toUpperCase(start_station_upper);
+    toUpperCase(end_station_upper);
+
+    if (!isValidStation(stations, start_station) || !isValidStation(stations, end_station))
+    {
+        cout << "\nInvalid station name. Please try again.\n";
+        return;
+    }
+
+    // Display station details
+    cout << "\nStarting Station Details:\n";
+    displayStationDetails(stations[start_station]);
+    cout << "\nDestination Station Details:\n";
+    displayStationDetails(stations[end_station]);
+
+    // Find connection
+    if (!findConnection(connections, start_station_upper, end_station_upper))
+    {
+        cout << "\nNo direct train connection found. Consider alternate routes.\n";
+    }
+
+    // Motivational quote
+    cout << "\nMotivational Quote: " << getMotivationalQuote() << "\n";
+
+    // Exit message
+    cout << "\n*\n";
+    cout << "*   Thank you for using the Lambda-Powered Train Finder!      *\n";
+    cout << "*   Have a wonderful journey and see you next time!           *\n";
+    cout << "*\n";
+}
+void manageRoutesAndFavorites() 
+{
+    // Struct to represent a route
+    struct Route {
+        std::string startStation;
+        std::string endStation;
+        int distance;
+    };
+
+    // List of stations
+    std::vector<std::string> stations = 
+    {
+        "Bengaluru", "Mysuru", "Mumbai", "Chennai", "Mangaluru", "Delhi",
+        "Hubballi", "Bagalkot", "Vijayapura", "Kolhapur", "Shimoga", 
+        "Kannur", "Secunderabad", "Karwar", "Shivamogga", "Bijapur", 
+        "Hospet", "Harihar", "Belagavi"
+    };
+
+    // Predefined routes
+    std::map<std::string, std::vector<Route>> routes = 
+    {
+        {"Bengaluru", {{"Bengaluru", "Mumbai", 750},
+                       {"Bengaluru", "Delhi", 2200},
+                       {"Bengaluru", "Hubballi", 350},
+                       {"Bengaluru", "Kolhapur", 800},
+                       {"Bengaluru", "Mysuru", 150},
+                       {"Bengaluru", "Karwar", 1000}}},
+
+        {"Mysuru", {{"Mysuru", "Chennai", 600},
+                    {"Mysuru", "Kannur", 550}}},
+
+        {"Hubballi", {{"Hubballi", "Mysuru", 500},
+                      {"Hubballi", "Secunderabad", 850}}},
+
+        {"Bagalkot", {{"Bagalkot", "Bengaluru", 650}}},
+
+        {"Vijayapura", {{"Vijayapura", "Mysuru", 700}}},
+
+        {"Shimoga", {{"Shimoga", "Bengaluru", 400}}},
+
+        {"Shivamogga", {{"Shivamogga", "Bengaluru", 300}}},
+
+        {"Bijapur", {{"Bijapur", "Bagalkot", 200}}},
+
+        {"Hospet", {{"Hospet", "Bengaluru", 350}}},
+
+        {"Harihar", {{"Harihar", "Bengaluru", 300}}},
+
+        {"Belagavi", {{"Belagavi", "Bengaluru", 750}}}
+    };
+
+    // User's favorite routes
+    std::map<std::string, std::vector<Route>> favoriteRoutes;
+
+    auto displayStations = [&](const std::vector<std::string>& stations) 
+    {
+        std::cout << "\nAvailable Stations:\n";
+        for (const auto& station : stations) std::cout << "- " << station << "\n";
+    };
+
+    auto displayRoutes = [&](const std::map<std::string, std::vector<Route>>& routes) 
+    {
+        std::cout << "\nAvailable Routes:\n";
+        for (const auto& pair : routes) 
+        {
+            for (const auto& route : pair.second) 
+            {
+                std::cout << route.startStation << " -> " << route.endStation
+                          << " (Distance: " << route.distance << " km)\n";
+            }
+        }
+    };
+
+    auto searchStation = [&](const std::string& station) {
+        auto it = std::find(stations.begin(), stations.end(), station);
+        if (it != stations.end()) 
+        {
+            std::cout << "Station found: " << station << "\n";
+        }
+         else 
+        {
+            std::cout << "Station not found: " << station << "\n";
+        }
+    };
+
+    auto searchRoute = [&](const std::string& start, const std::string& end) 
+    {
+        bool found = false;
+        for (const auto& pair : routes) 
+        {
+            for (const auto& route : pair.second) 
+            {
+                if (route.startStation == start && route.endStation == end) 
+                {
+                    std::cout << "Route found: " << start << " -> " << end
+                              << " (Distance: " << route.distance << " km)\n";
+                    found = true;
+                }
+            }
+        }
+        if (!found) std::cout << "No route found from " << start << " to " << end << ".\n";
+    };
+
+    auto calculateTotalDistance = [&]() 
+    {
+        int totalDistance = 0;
+        for (const auto& pair : favoriteRoutes) 
+        {
+            for (const auto& route : pair.second) 
+            {
+                totalDistance += route.distance;
+            }
+        }
+        std::cout << "Total distance of all favorite routes: " << totalDistance << " km.\n";
+    };
+
+    auto suggestRoutes = [&]() 
+    {
+        if (routes.empty()) 
+        {
+            std::cout << "No predefined routes available for suggestions.\n";
+            return;
+        }
+        std::cout << "\nSuggested Routes:\n";
+        for (const auto& pair : routes) 
+        {
+            for (const auto& route : pair.second) 
+            {
+                std::cout << "- " << route.startStation << " -> " << route.endStation
+                          << " (Distance: " << route.distance << " km)\n";
+            }
+        }
+    };
+
+    auto manageFavorites = [&]() 
+    {
+        int choice;
+        do 
+        {
+            std::cout << "\nFavorite Routes Management:\n";
+            std::cout << "1. Add a favorite route\n";
+            std::cout << "2. View favorite routes\n";
+            std::cout << "3. Delete a favorite route\n";
+            std::cout << "4. Sort favorite routes\n";
+            std::cout << "5. Calculate total distance of favorite routes\n";
+            std::cout << "6. Go back\n";
+            std::cout << "Enter your choice: ";
+            std::cin >> choice;
+
+            switch (choice) 
+            {
+                case 1: 
+                {
+                    std::string start, end;
+                    int distance;
+                    std::cout << "Enter start station: ";
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    std::getline(std::cin, start);
+                    std::cout << "Enter end station: ";
+                    std::getline(std::cin, end);
+                    std::cout << "Enter distance (in km): ";
+                    std::cin >> distance;
+
+                    favoriteRoutes[start].push_back({start, end, distance});
+                    std::cout << "Favorite route added: " << start << " -> " << end
+                              << " (Distance: " << distance << " km)\n";
+                    break;
+                }
+                case 2: 
+                {
+                    std::cout << "\nYour Favorite Routes:\n";
+                    for (const auto& pair : favoriteRoutes) 
+                    {
+                        for (const auto& route : pair.second) 
+                        {
+                            std::cout << route.startStation << " -> " << route.endStation
+                                      << " (Distance: " << route.distance << " km)\n";
+                        }
+                    }
+                    if (favoriteRoutes.empty()) std::cout << "No favorite routes saved yet.\n";
+                    break;
+                }
+
+                case 3: 
+                {
+                    std::string start, end;
+                    std::cout << "Enter the start station of the route to delete: ";
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    std::getline(std::cin, start);
+                    std::cout << "Enter the end station of the route to delete: ";
+                    std::getline(std::cin, end);
+
+                    auto it = favoriteRoutes.find(start);
+                    if (it != favoriteRoutes.end()) 
+                    {
+                        auto& routes = it->second;
+                        auto routeIt = std::remove_if(routes.begin(), routes.end(), [&end](const Route& route) 
+                        {
+                            return route.endStation == end;
+                        }
+                        );
+
+                        if (routeIt != routes.end()) 
+                        {
+                            routes.erase(routeIt, routes.end());
+                            std::cout << "Route deleted successfully.\n";
+                            if (routes.empty()) favoriteRoutes.erase(it);
+                        } 
+                        else std::cout << "Route not found.\n";
+                    } 
+                    else std::cout << "Start station not found in favorites.\n";
+                    break;
+                }
+
+                case 4: 
+                {
+                    for (auto& pair : favoriteRoutes) 
+                    {
+                        std::sort(pair.second.begin(), pair.second.end(), [](const Route& a, const Route& b) 
+                        {
+                            return a.distance < b.distance;
+                        }
+                        );
+                    }
+                    std::cout << "Favorite routes sorted by distance.\n";
+                    break;
+                }
+                case 5:
+                    calculateTotalDistance();
+                    break;
+                case 6:
+                    std::cout << "Returning to main menu...\n";
+                    break;
+                default:
+                    std::cout << "Invalid choice. Please try again.\n";
+            }
+        } while (choice != 6);
+    };
+
+    std::cout << "\nWelcome to Favorite Routes Manager\n";
+    int choice;
+
+    do {
+        std::cout << "\nMenu:\n";
+        std::cout << "1. Display all stations\n";
+        std::cout << "2. Display all routes\n";
+        std::cout << "3. Search for a station\n";
+        std::cout << "4. Search for a route\n";
+        std::cout << "5. Manage favorite routes\n";
+        std::cout << "6. Get route suggestions\n";
+        std::cout << "7. Exit\n";
+        std::cout << "Enter your choice: ";
+        std::cin >> choice;
+
+        switch (choice) 
+        {
+            case 1:
+                displayStations(stations);
+                break;
+            case 2:
+                displayRoutes(routes);
+                break;
+            case 3: 
+            {
+                std::string station;
+                std::cout << "Enter station name to search: ";
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::getline(std::cin, station);
+                searchStation(station);
+                break;
+            }
+            case 4: 
+            {
+                std::string start, end;
+                std::cout << "Enter start station: ";
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::getline(std::cin, start);
+                std::cout << "Enter end station: ";
+                std::getline(std::cin, end);
+                searchRoute(start, end);
+                break;
+            }
+            case 5:
+                manageFavorites();
+                break;
+            case 6:
+                suggestRoutes();
+                break;
+            case 7:
+                std::cout << "Exiting... Goodbye!\n";
+                break;
+            default:
+                std::cout << "Invalid choice. Please try again.\n";
+        }
+    } while (choice != 7);
+}
+};
+
+// Initialize the railway network with some stations and connections
+void initializeNetwork(Graph& railwayNetwork)
+{
+    // List of stations with their unique IDs and names
+    vector<pair<string, string>> stations =
+    {
+        {"Bengaluru", "STN001"},
+        {"Mumbai", "STN002"},
+        {"Mysuru", "STN003"},
+        {"Chennai", "STN004"},
+        {"Mangaluru", "STN005"},
+        {"Delhi", "STN006"},
+        {"Hubballi", "STN007"},
+        {"Bagalkot", "STN008"},
+        {"Vijayapura", "STN009"},
+        {"Kolhapur", "STN010"},
+        {"Shimoga", "STN011"},
+        {"Kannur", "STN012"},
+        {"Secunderabad", "STN013"},
+        {"Karwar", "STN014"},
+        {"Shivamogga", "STN015"},
+        {"Bijapur", "STN016"},
+        {"Hospet", "STN017"},
+        {"Harihar", "STN018"},
+        {"Belagavi", "STN019"}
+    };
+
+    // Add each station to the railway network
+    for (const auto& station : stations)
+    {
+        railwayNetwork.addStation(station.first); // station.first is the name
+    }
+
+    // Example connections between stations (based on the given train data)
+    railwayNetwork.addConnection("Bengaluru", "Mumbai", 750, 99, 10, 30.0);
+    railwayNetwork.addConnection("Mysuru", "Chennai", 600, 120, 6, 45.0);
+    railwayNetwork.addConnection("Bengaluru", "Mangaluru", 550, 100, 7, 15.0);
+    railwayNetwork.addConnection("Bengaluru", "Delhi", 2200, 79, 5, 00.0);
+    railwayNetwork.addConnection("Mysuru", "Bengaluru", 450, 130, 2, 30.0);
+    railwayNetwork.addConnection("Hubballi", "Mysuru", 500, 73, 8, 00.0);
+    railway
