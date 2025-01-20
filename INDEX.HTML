@@ -1991,4 +1991,2474 @@ void initializeNetwork(Graph& railwayNetwork)
     railwayNetwork.addConnection("Bengaluru", "Delhi", 2200, 79, 5, 00.0);
     railwayNetwork.addConnection("Mysuru", "Bengaluru", 450, 130, 2, 30.0);
     railwayNetwork.addConnection("Hubballi", "Mysuru", 500, 73, 8, 00.0);
-    railway
+    railwayNetwork.addConnection("Bagalkot", "Bengaluru", 650, 110, 9, 00.0);
+    railwayNetwork.addConnection("Vijayapura", "Mysuru", 700, 95, 9, 30.0);
+    railwayNetwork.addConnection("Bengaluru", "Hubballi", 350, 150, 6, 00.0);
+    railwayNetwork.addConnection("Bengaluru", "Kolhapur", 800, 85, 11, 45.0);
+    railwayNetwork.addConnection("Bengaluru", "Shimoga", 400, 110, 7, 00.0);
+    railwayNetwork.addConnection("Mysuru", "Kannur", 550, 95, 10, 15.0);
+    railwayNetwork.addConnection("Hubballi", "Secunderabad", 850, 100, 5, 30.0);
+    railwayNetwork.addConnection("Bengaluru", "Karwar", 1000, 70, 9, 00.0);
+    railwayNetwork.addConnection("Shivamogga", "Bengaluru", 300, 120, 6, 15.0);
+    railwayNetwork.addConnection("Bijapur", "Bagalkot", 200, 180, 6, 45.0);
+    railwayNetwork.addConnection("Bengaluru", "Mysuru", 150, 200, 6, 00.0);
+    railwayNetwork.addConnection("Hospet", "Bengaluru", 350, 130, 9, 15.0);
+    railwayNetwork.addConnection("Harihar", "Bengaluru", 300, 140, 7, 30.0);
+    railwayNetwork.addConnection("Belagavi", "Bengaluru", 750, 90, 6, 00.0);
+}
+
+
+// Handle the route-finding process
+void processFindRoute(Graph& railwayNetwork)
+ {
+    string startName, endName;
+    // Display all available stations
+    railwayNetwork.displayStations();
+
+    // Take user input for the starting and destination stations
+    cout << "Enter the name of your starting station: ";
+    cin.ignore();
+    getline(cin, startName);
+
+    cout << "Enter the name of your destination station: ";
+    getline(cin, endName);
+
+    // Ask the user to choose the type of train (slow or fast)
+    cout << "Choose train type (1 for slow, 2 for fast): ";
+    int trainType;
+    cin >> trainType;
+
+    // Find the route based on the selected train type
+    switch (trainType) 
+    {
+        case 1:
+            cout << "Finding slow train route...\n";
+            railwayNetwork.findRoute(startName, endName, "slow");
+            break;
+        case 2:
+            cout << "Finding fast train route...\n";
+            railwayNetwork.findRoute(startName, endName, "fast");
+            break;
+        default:
+            cout << "Invalid train type selected." << endl;
+    }
+}
+// Function to perform test cases for the railway network
+void performTestCases(Graph& railwayNetwork)
+{
+    cout << "\n--- Performing Test Cases ---" << endl;
+
+    // Test case 1: Valid route with fast train
+
+    cout << "Test Case 1: Fast Train from Mumbai C.S.T. to Dadar" << endl;
+    railwayNetwork.findRoute("Mumbai C.S.T.", "Dadar", "fast");
+
+    // Test case 2: Valid route with slow train
+
+    cout << "\nTest Case 2: Slow Train from Dadar to Borivali" << endl;
+    railwayNetwork.findRoute("Dadar", "Borivali", "slow");
+
+    // Test case 3: Route that doesn't exist
+    
+    cout << "\nTest Case 3: Invalid route inquiry" << endl;
+    railwayNetwork.findRoute("Andheri", "Kasara", "fast");
+
+    // Test case 4: Another valid route
+    cout << "\nTest Case 4: Slow Train from Thane to Panvel" << endl;
+    railwayNetwork.findRoute("Thane", "Panvel", "slow");
+
+    // Test case 5: Valid route with fast train
+    cout << "\nTest Case 5: Fast Train from Dombivli to Karjat" << endl;
+    railwayNetwork.findRoute("Dombivli", "Karjat", "fast");
+
+    // Further examples to test various routes
+    cout << "\nTest Case 6: Slow Train from Kurla to Badlapur" << endl;
+    railwayNetwork.findRoute("Kurla", "Badlapur", "slow");
+
+    cout << "\nTest Case 7: Valid route - fast train from Bandra to Byculla" << endl;
+    railwayNetwork.findRoute("Bandra", "Byculla", "fast");
+
+    cout << "\nTest Case 8: Valid route - slow train from Vashi to Thane" << endl;
+    railwayNetwork.findRoute("Vashi", "Thane", "slow");
+}
+// Define a nested hash table structure: Platform -> Time Slot -> Crowd Density
+unordered_map<string, unordered_map<string, int>> crowdData;
+
+// Structure to handle platform and crowd density data
+struct PlatformData 
+{
+    string platformName;
+    unordered_map<string, int> timeSlotData; // Time slot -> Density
+    unordered_map<string, vector<int>> crowdHistory; // Time Slot -> History of Density
+};
+
+// Helper function to get the current timestamp (for data tracking)
+string getCurrentTimestamp() 
+{
+    time_t now = time(0);
+    struct tm* localTime = localtime(&now);
+    stringstream timestamp;
+    timestamp << (localTime->tm_year + 1900) << "-"
+              << setfill('0') << setw(2) << (localTime->tm_mon + 1) << "-"
+              << setfill('0') << setw(2) << localTime->tm_mday << " "
+              << setfill('0') << setw(2) << localTime->tm_hour << ":"
+              << setfill('0') << setw(2) << localTime->tm_min << ":"
+              << setfill('0') << setw(2) << localTime->tm_sec;
+    return timestamp.str();
+}
+
+// Function to display current crowd data
+void displayData() 
+{
+    if (crowdData.empty()) 
+    {
+        cout << "\nNo data available! Please add some crowd information first.\n";
+        return;
+    }
+    cout << "\nCurrent Crowd Data:\n";
+    cout << setw(15) << "Platform" << setw(20) << "Time Slot" << setw(15) << "Density\n";
+    cout << "----------------------------------------------------------\n";
+    for (const auto& platform : crowdData) 
+    {
+        for (const auto& timeSlot : platform.second) 
+        {
+            cout << setw(15) << platform.first 
+                 << setw(20) << timeSlot.first 
+                 << setw(15) << timeSlot.second << " people\n";
+        }
+    }
+}
+// Function to display crowd data for a specific time slot across all platforms
+void displayTimeSlotData(const string& timeSlot) 
+{
+    cout << "\nCrowd Data for Time Slot: " << timeSlot << "\n";
+    cout << setw(20) << "Platform" << setw(15) << "Density\n";
+    cout << "---------------------------------------\n";
+    for (const auto& platform : crowdData) 
+    {
+        if (platform.second.find(timeSlot) != platform.second.end()) 
+        {
+            cout << setw(20) << platform.first 
+                 << setw(15) << platform.second.at(timeSlot) << " people\n";
+        }
+    }
+}
+
+// Function to find the platform with the highest density for a specific time slot
+void findMaxDensityPlatform(const string& timeSlot) 
+{
+    string maxPlatform;
+    int maxDensity = INT_MIN;
+
+    for (const auto& platform : crowdData) 
+    {
+        if (platform.second.find(timeSlot) != platform.second.end()) 
+        {
+            int density = platform.second.at(timeSlot);
+            if (density > maxDensity) 
+            {
+                maxDensity = density;
+                maxPlatform = platform.first;
+            }
+        }
+    }
+
+    if (maxDensity != INT_MIN) 
+    {
+        cout << "Platform with highest density at " << timeSlot << ": " 
+             << maxPlatform << " with " << maxDensity << " people\n";
+    }
+     else 
+     {
+        cout << "No data available for the specified time slot.\n";
+    }
+}
+
+// Function to find the platform with the lowest density for a specific time slot
+void findMinDensityPlatform(const string& timeSlot) 
+{
+    string minPlatform;
+    int minDensity = INT_MAX;
+
+    for (const auto& platform : crowdData) 
+    {
+        if (platform.second.find(timeSlot) != platform.second.end()) 
+        {
+            int density = platform.second.at(timeSlot);
+            if (density < minDensity) 
+            {
+                minDensity = density;
+                minPlatform = platform.first;
+            }
+        }
+    }
+
+    if (minDensity != INT_MAX) 
+    {
+        cout << "Platform with lowest density at " << timeSlot << ": " 
+             << minPlatform << " with " << minDensity << " people\n";
+    }
+     else 
+     {
+        cout << "No data available for the specified time slot.\n";
+    }
+}
+
+// Function to display the platform with the highest average density
+void displayMaxAverageDensityPlatform() 
+{
+    string maxPlatform;
+    double maxAverageDensity = -1.0;
+
+    for (const auto& platform : crowdData) 
+    {
+        int totalDensity = 0, timeSlotCount = 0;
+        for (const auto& timeSlot : platform.second) 
+        {
+            totalDensity += timeSlot.second;
+            timeSlotCount++;
+        }
+
+        if (timeSlotCount > 0) 
+        {
+            double averageDensity = static_cast<double>(totalDensity) / timeSlotCount;
+            if (averageDensity > maxAverageDensity) 
+            {
+                maxAverageDensity = averageDensity;
+                maxPlatform = platform.first;
+            }
+        }
+    }
+
+    if (maxAverageDensity != -1.0) 
+    {
+        cout << "Platform with highest average density: " << maxPlatform 
+             << " with " << maxAverageDensity << " people\n";
+    }
+     else 
+     {
+        cout << "No data available to calculate average density.\n";
+    }
+}
+
+// Function to display the platform with the lowest average density
+void displayMinAverageDensityPlatform() 
+{
+    string minPlatform;
+    double minAverageDensity = DBL_MAX;
+
+    for (const auto& platform : crowdData) 
+    {
+        int totalDensity = 0, timeSlotCount = 0;
+        for (const auto& timeSlot : platform.second) 
+        {
+
+            totalDensity += timeSlot.second;
+            timeSlotCount++;
+        }
+
+        if (timeSlotCount > 0) 
+        {
+            double averageDensity = static_cast<double>(totalDensity) / timeSlotCount;
+            if (averageDensity < minAverageDensity) 
+            {
+                minAverageDensity = averageDensity;
+                minPlatform = platform.first;
+            }
+        }
+    }
+
+    if (minAverageDensity != DBL_MAX) 
+    {
+        cout << "Platform with lowest average density: " << minPlatform 
+             << " with " << minAverageDensity << " people\n";
+    }
+     else 
+     {
+        cout << "No data available to calculate average density.\n";
+    }
+}
+
+// Function to add a new platform and time slot
+void addPlatformAndTimeSlot() 
+{
+    string platform, timeSlot;
+    int density;
+
+    cout << "\nEnter Platform Name: ";
+    cin.ignore();
+    getline(cin, platform);
+
+    cout << "Enter Time Slot (e.g., 08:00-08:30): ";
+    getline(cin, timeSlot);
+
+    cout << "Enter Crowd Density (number of people): ";
+    cin >> density;
+
+    crowdData[platform][timeSlot] = density;
+    cout << "Data successfully added!\n";
+}
+
+// Function to update existing crowd density
+void updateCrowdDensity() 
+{
+    string platform, timeSlot;
+    int density;
+
+    cout << "\nEnter Platform Name to Update: ";
+    cin.ignore();
+    getline(cin, platform);
+
+    if (crowdData.find(platform) == crowdData.end()) 
+    {
+        cout << "Platform not found! Please add it first.\n";
+        return;
+    }
+
+    cout << "Enter Time Slot to Update (e.g., 08:00-08:30): ";
+    getline(cin, timeSlot);
+
+    if (crowdData[platform].find(timeSlot) == crowdData[platform].end()) 
+    {
+        cout << "Time slot not found! Please add it first.\n";
+        return;
+    }
+
+    cout << "Enter Updated Crowd Density: ";
+    cin >> density;
+
+    crowdData[platform][timeSlot] = density;
+    cout << "Data updated successfully!\n";
+}
+
+// Function to predict future density based on current data
+void predictDensity() 
+{
+    string platform, timeSlot;
+
+    cout << "\nEnter Platform Name for Prediction: ";
+    cin.ignore();
+    getline(cin, platform);
+
+    if (crowdData.find(platform) == crowdData.end()) 
+    {
+        cout << "Platform not found! Please add it first.\n";
+        return;
+    }
+
+    cout << "Enter Time Slot for Prediction (e.g., 08:00-08:30): ";
+    getline(cin, timeSlot);
+
+    if (crowdData[platform].find(timeSlot) == crowdData[platform].end()) 
+    {
+        cout << "Time slot not found! Please add it first.\n";
+        return;
+    }
+
+    // Predict future density based on current data
+    int currentDensity = crowdData[platform][timeSlot];
+    int predictedDensity = currentDensity + (currentDensity * 0.15);  // Predict a 15% increase
+
+    cout << "Current Density: " << currentDensity << " people\n";
+    cout << "Predicted Density (next interval): " << predictedDensity << " people\n";
+}
+
+// Function to visualize crowd density
+void visualizeData() 
+{
+    if (crowdData.empty()) 
+    {
+        cout << "\nNo data available for visualization! Please add data first.\n";
+        return;
+    }
+
+    cout << "\nCrowd Density Visualization:\n";
+    for (const auto& platform : crowdData) 
+    {
+        cout << platform.first << ":\n";
+        for (const auto& timeSlot : platform.second) 
+        {
+            cout << "  " << timeSlot.first << " | ";
+            int density = timeSlot.second / 10; // Scale density for visualization
+            for (int i = 0; i < density; ++i) cout << "#";
+            cout << " (" << timeSlot.second << " people)\n";
+        }
+    }
+}
+
+// Function to check overcrowding and suggest actions
+void checkCrowdDensity() 
+{
+    string platform, timeSlot;
+    int threshold;
+
+    cout << "\nEnter Platform Name to Check: ";
+    cin.ignore();
+    getline(cin, platform);
+
+    if (crowdData.find(platform) == crowdData.end()) 
+    {
+        cout << "Platform not found! Please add it first.\n";
+        return;
+    }
+
+    cout << "Enter Time Slot to Check (e.g., 08:00-08:30): ";
+    getline(cin, timeSlot);
+
+    if (crowdData[platform].find(timeSlot) == crowdData[platform].end()) 
+    {
+        cout << "Time slot not found! Please add it first.\n";
+        return;
+    }
+
+    cout << "Enter Overcrowding Threshold: ";
+    cin >> threshold;
+
+    int currentDensity = crowdData[platform][timeSlot];
+
+    cout << "Current Density: " << currentDensity << " people\n";
+    if (currentDensity > threshold) 
+    {
+        cout << "ALERT: Overcrowding detected!\n";
+        cout << "Suggested Actions: Increase train frequency or redirect passengers.\n";
+    }
+     else
+      {
+        cout << "Crowd density is within acceptable limits.\n";
+    }
+}
+
+// Function to analyze crowd density trends
+void analyzeTrends() 
+{
+    string platform;
+    cout << "\nEnter Platform for Trend Analysis: ";
+    cin.ignore();
+    getline(cin, platform);
+
+    if (crowdData.find(platform) == crowdData.end()) 
+    {
+        cout << "Platform not found! Please add it first.\n";
+        return;
+    }
+
+    // Trend analysis based on time slots
+    cout << "\nCrowd Density Trend for " << platform << ":\n";
+    for (const auto& timeSlot : crowdData[platform]) 
+    {
+        int density = timeSlot.second;
+        cout << timeSlot.first << " | ";
+        if (density < 100) 
+        {
+            cout << "Low";
+        } 
+        else if (density <= 300) 
+        {
+            cout << "Medium";
+        }
+         else 
+         {
+            cout << "High";
+        }
+        cout << " (" << density << " people)\n";
+    }
+}
+
+// Function to remove a time slot from a platform
+void removeTimeSlot() {
+    string platform, timeSlot;
+
+    cout << "\nEnter Platform Name: ";
+    cin.ignore();
+    getline(cin, platform);
+
+    if (crowdData.find(platform) == crowdData.end())
+     {
+        cout << "Platform not found! Please add it first.\n";
+        return;
+    }
+
+    cout << "Enter Time Slot to Remove (e.g., 08:00-08:30): ";
+    getline(cin, timeSlot);
+
+    if (crowdData[platform].find(timeSlot) == crowdData[platform].end()) 
+    {
+        cout << "Time slot not found! Please add it first.\n";
+        return;
+    }
+
+    crowdData[platform].erase(timeSlot);
+    cout << "Time slot " << timeSlot << " removed successfully!\n";
+}
+
+// Function to add crowd data for multiple platforms and time slots
+void batchAddData() 
+{
+    int numPlatforms;
+    cout << "Enter number of platforms to add: ";
+    cin >> numPlatforms;
+
+    for (int i = 0; i < numPlatforms; ++i) 
+    {
+        string platform;
+        cout << "\nEnter Platform Name #" << i + 1 << ": ";
+        cin.ignore();
+        getline(cin, platform);
+
+        int numTimeSlots;
+        cout << "Enter number of time slots for platform " << platform << ": ";
+        cin >> numTimeSlots;
+
+        for (int j = 0; j < numTimeSlots; ++j) 
+        {
+            string timeSlot;
+            int density;
+            cout << "\nEnter Time Slot #" << j + 1 << " for platform " << platform << ": ";
+            cin.ignore();
+            getline(cin, timeSlot);
+            cout << "Enter Crowd Density for time slot " << timeSlot << ": ";
+            cin >> density;
+
+            crowdData[platform][timeSlot] = density;
+        }
+    }
+    cout << "Batch data added successfully!\n";
+}
+
+// Function to generate daily crowd prediction report
+void generateDailyReport() {
+    ofstream reportFile("daily_report.txt");
+    if (reportFile.is_open()) 
+    {
+        reportFile << "Daily Crowd Density Report\n";
+        reportFile << "==========================\n";
+        for (const auto& platform : crowdData) 
+        {
+            reportFile << platform.first << ":\n";
+            for (const auto& timeSlot : platform.second) 
+            {
+                reportFile << "  " << timeSlot.first << " | ";
+                int density = timeSlot.second;
+                if (density < 50) reportFile << "Low";
+                else if (density < 200) reportFile << "Medium";
+                else reportFile << "High";
+                reportFile << " (" << density << " people)\n";
+            }
+        }
+        reportFile.close();
+        cout << "Daily report generated successfully and saved to daily_report.txt\n";
+    }
+     else 
+     {
+        cout << "Error: Unable to open file to save daily report.\n";
+    }
+
+    // Display the report
+    cout << "\nDaily Crowd Density Report\n";
+    cout << "==========================\n";
+    for (const auto& platform : crowdData) 
+    {
+        cout << platform.first << ":\n";
+        for (const auto& timeSlot : platform.second) 
+        {
+            cout << "  " << timeSlot.first << " | ";
+            int density = timeSlot.second;
+            if (density < 50) cout << "Low";
+            else if (density < 200) cout << "Medium";
+            else cout << "High";
+            cout << " (" << density << " people)\n";
+        }
+    }
+}
+// Function to generate weekly crowd prediction report
+void generateWeeklyReport() 
+{
+    ofstream reportFile("weekly_report.txt");
+    if (reportFile.is_open()) 
+    {
+        reportFile << "Weekly Crowd Density Report\n";
+        reportFile << "===========================\n";
+        for (const auto& platform : crowdData) 
+        {
+            reportFile << platform.first << ":\n";
+            for (const auto& timeSlot : platform.second) 
+            {
+                reportFile << "  " << timeSlot.first << " | ";
+                int density = timeSlot.second;
+                if (density < 50) reportFile << "Low";
+                else if (density < 200) reportFile << "Medium";
+                else reportFile << "High";
+                reportFile << " (" << density << " people)\n";
+            }
+        }
+        reportFile.close();
+        cout << "Weekly report generated successfully and saved to weekly_report.txt\n";
+    }
+     else 
+     {
+        cout << "Error: Unable to open file to save weekly report.\n";
+    }
+
+    // Display the report
+    cout << "\nWeekly Crowd Density Report\n";
+    cout << "===========================\n";
+    for (const auto& platform : crowdData) 
+    {
+        cout << platform.first << ":\n";
+        for (const auto& timeSlot : platform.second) 
+        {
+            cout << "  " << timeSlot.first << " | ";
+            int density = timeSlot.second;
+            if (density < 50) cout << "Low";
+            else if (density < 200) cout << "Medium";
+            else cout << "High";
+            cout << " (" << density << " people)\n";
+        }
+    }
+}
+
+// Function to generate monthly crowd prediction report
+void generateMonthlyReport() 
+{
+    ofstream reportFile("monthly_report.txt");
+    if (reportFile.is_open()) 
+    {
+        reportFile << "Monthly Crowd Density Report\n";
+        reportFile << "============================\n";
+        for (const auto& platform : crowdData) 
+        {
+            reportFile << platform.first << ":\n";
+            for (const auto& timeSlot : platform.second) 
+            {
+                reportFile << "  " << timeSlot.first << " | ";
+                int density = timeSlot.second;
+                if (density < 50) reportFile << "Low";
+                else if (density < 200) reportFile << "Medium";
+                else reportFile << "High";
+                reportFile << " (" << density << " people)\n";
+            }
+        }
+        reportFile.close();
+        cout << "Monthly report generated successfully and saved to monthly_report.txt\n";
+    } 
+    else 
+    {
+        cout << "Error: Unable to open file to save monthly report.\n";
+    }
+
+    // Display the report
+    cout << "\nMonthly Crowd Density Report\n";
+    cout << "============================\n";
+    for (const auto& platform : crowdData) 
+    {
+        cout << platform.first << ":\n";
+        for (const auto& timeSlot : platform.second)
+         {
+            cout << "  " << timeSlot.first << " | ";
+            int density = timeSlot.second;
+            if (density < 50) cout << "Low";
+            else if (density < 200) cout << "Medium";
+            else cout << "High";
+            cout << " (" << density << " people)\n";
+        }
+    }
+}
+
+// Function to log actions in the system
+void logAction(const string& action) 
+{
+    ofstream logFile("crowd_management_log.txt", ios_base::app);
+    if (logFile.is_open()) 
+    {
+        logFile << getCurrentTimestamp() << " - " << action << endl;
+        logFile.close();
+    }
+    else 
+    {
+        cout << "Error: Unable to open log file.\n";
+    }
+}
+
+// Function to validate platform and time slot data
+bool isValidPlatformAndTimeSlot(const string& platform, const string& timeSlot) 
+{
+    if (crowdData.find(platform) == crowdData.end()) 
+    {
+        cout << "Platform not found! Please add it first.\n";
+        return false;
+    }
+
+    if (crowdData[platform].find(timeSlot) == crowdData[platform].end()) 
+    {
+        cout << "Time slot not found! Please add it first.\n";
+        return false;
+    }
+    return true;
+}
+// Function to calculate the total crowd density for a specific platform
+void calculateTotalDensityForPlatform() 
+{
+    string platform;
+    cout << "\nEnter Platform Name for Total Density Calculation: ";
+    cin.ignore();
+    getline(cin, platform);
+
+    if (crowdData.find(platform) == crowdData.end()) 
+    {
+        cout << "Platform not found! Please add it first.\n";
+        return;
+    }
+
+    int totalDensity = 0;
+    for (const auto& timeSlot : crowdData[platform]) 
+    {
+        totalDensity += timeSlot.second;
+    }
+
+    cout << "Total Crowd Density for " << platform << ": " << totalDensity << " people\n";
+}
+
+// Function to display the crowd density for a specific time slot across all platforms
+void displayDensityForTimeSlot() 
+{
+    string timeSlot;
+    cout << "\nEnter Time Slot for Density Display (e.g., 08:00-08:30): ";
+    cin.ignore();
+    getline(cin, timeSlot);
+
+    cout << "\nCrowd Density for Time Slot: " << timeSlot << "\n";
+    cout << setw(20) << "Platform" << setw(15) << "Density\n";
+    cout << "---------------------------------------\n";
+    for (const auto& platform : crowdData) 
+    {
+        if (platform.second.find(timeSlot) != platform.second.end()) 
+        {
+            cout << setw(20) << platform.first 
+                 << setw(15) << platform.second.at(timeSlot) << " people\n";
+        }
+    }
+}
+
+// Function to display the crowd density for a specific platform and time slot
+void displayDensityForPlatformAndTimeSlot() {
+    string platform, timeSlot;
+    cout << "\nEnter Platform Name: ";
+    cin.ignore();
+    getline(cin, platform);
+
+    if (crowdData.find(platform) == crowdData.end()) {
+        cout << "Platform not found! Please add it first.\n";
+        return;
+    }
+
+    cout << "Enter Time Slot (e.g., 08:00-08:30): ";
+    getline(cin, timeSlot);
+
+    if (crowdData[platform].find(timeSlot) == crowdData[platform].end()) {
+        cout << "Time slot not found! Please add it first.\n";
+        return;
+    }
+
+    cout << "Crowd Density for " << platform << " at " << timeSlot << ": " 
+         << crowdData[platform][timeSlot] << " people\n";
+}
+
+// Function to display the crowd density for all platforms and time slots
+void displayAllDensityData() {
+    if (crowdData.empty()) {
+        cout << "\nNo data available! Please add some crowd information first.\n";
+        return;
+    }
+
+    cout << "\nAll Crowd Density Data:\n";
+    cout << setw(15) << "Platform" << setw(20) << "Time Slot" << setw(15) << "Density\n";
+    cout << "----------------------------------------------------------\n";
+    for (const auto& platform : crowdData) {
+        for (const auto& timeSlot : platform.second) {
+            cout << setw(15) << platform.first 
+                 << setw(20) << timeSlot.first 
+                 << setw(15) << timeSlot.second << " people\n";
+        }
+    }
+}
+
+// Function to display crowd data for a specific platform
+void displayPlatformData(const string& platform) {
+    if (crowdData.find(platform) == crowdData.end()) {
+        cout << "Platform not found! Please add it first.\n";
+        return;
+    }
+
+    cout << "\nCrowd Data for Platform: " << platform << "\n";
+    cout << setw(20) << "Time Slot" << setw(15) << "Density\n";
+    cout << "---------------------------------------\n";
+    for (const auto& timeSlot : crowdData[platform]) {
+        cout << setw(20) << timeSlot.first 
+             << setw(15) << timeSlot.second << " people\n";
+    }
+}
+// Function to calculate the total number of platforms
+void calculateTotalPlatforms() {
+    cout << "Total number of platforms: " << crowdData.size() << "\n";
+}
+
+// Function to calculate the total number of time slots for a specific platform
+void calculateTotalTimeSlots() {
+    string platform;
+    cout << "\nEnter Platform Name for Total Time Slots Calculation: ";
+    cin.ignore();
+    getline(cin, platform);
+
+    if (crowdData.find(platform) == crowdData.end()) {
+        cout << "Platform not found! Please add it first.\n";
+        return;
+    }
+
+    cout << "Total number of time slots for " << platform << ": " << crowdData[platform].size() << "\n";
+}
+
+// Function to display the most crowded platform
+void displayMostCrowdedPlatform() {
+    string mostCrowdedPlatform;
+    int maxDensity = INT_MIN;
+
+    for (const auto& platform : crowdData) {
+        int totalDensity = 0;
+        for (const auto& timeSlot : platform.second) {
+            totalDensity += timeSlot.second;
+        }
+
+        if (totalDensity > maxDensity) {
+            maxDensity = totalDensity;
+            mostCrowdedPlatform = platform.first;
+        }
+    }
+
+    if (!mostCrowdedPlatform.empty()) {
+        cout << "Most crowded platform: " << mostCrowdedPlatform << " with " << maxDensity << " people\n";
+    } else {
+        cout << "No data available to determine the most crowded platform.\n";
+    }
+}
+
+// Function to display the least crowded platform
+void displayLeastCrowdedPlatform() {
+    string leastCrowdedPlatform;
+    int minDensity = INT_MAX;
+
+    for (const auto& platform : crowdData) {
+        int totalDensity = 0;
+        for (const auto& timeSlot : platform.second) {
+            totalDensity += timeSlot.second;
+        }
+
+        if (totalDensity < minDensity) {
+            minDensity = totalDensity;
+            leastCrowdedPlatform = platform.first;
+        }
+    }
+
+    if (!leastCrowdedPlatform.empty()) {
+        cout << "Least crowded platform: " << leastCrowdedPlatform << " with " << minDensity << " people\n";
+    } else {
+        cout << "No data available to determine the least crowded platform.\n";
+    }
+}
+
+// Function to save crowd data to a file
+void saveDataToFile() {
+    ofstream outFile("crowd_data.txt");
+
+    if (outFile.is_open()) {
+        for (const auto& platform : crowdData) {
+            outFile << platform.first << "\n";
+            for (const auto& timeSlot : platform.second) {
+                outFile << "  " << timeSlot.first << " | " << timeSlot.second << "\n";
+            }
+        }
+        outFile.close();
+        cout << "Data saved successfully to crowd_data.txt\n";
+    } else {
+        cout << "Error: Unable to open file to save data.\n";
+    }
+}
+
+// Function to load crowd data from a file
+void loadDataFromFile() {
+    ifstream inFile("crowd_data.txt");
+
+    if (inFile.is_open()) {
+        string platform, timeSlot;
+        int density;
+        while (getline(inFile, platform)) {
+            while (getline(inFile, timeSlot)) {
+                if (timeSlot.empty()) break;
+                size_t delimiterPos = timeSlot.find(" | ");
+                if (delimiterPos != string::npos) {
+                    density = stoi(timeSlot.substr(delimiterPos + 3));
+                    crowdData[platform][timeSlot.substr(0, delimiterPos)] = density;
+                }
+            }
+        }
+        inFile.close();
+        cout << "Data loaded successfully from crowd_data.txt\n";
+    } else {
+        cout << "Error: Unable to open file to load data.\n";
+    }
+}
+// Function to calculate the peak time slot for a specific platform
+void calculatePeakTimeSlot() {
+    string platform;
+    cout << "\nEnter Platform Name for Peak Time Slot Calculation: ";
+    cin.ignore();
+    getline(cin, platform);
+
+    if (crowdData.find(platform) == crowdData.end()) {
+        cout << "Platform not found! Please add it first.\n";
+        return;
+    }
+
+    string peakTimeSlot;
+    int maxDensity = INT_MIN;
+
+    for (const auto& timeSlot : crowdData[platform]) {
+        if (timeSlot.second > maxDensity) {
+            maxDensity = timeSlot.second;
+            peakTimeSlot = timeSlot.first;
+        }
+    }
+
+    if (!peakTimeSlot.empty()) {
+        cout << "Peak Time Slot for " << platform << ": " << peakTimeSlot 
+             << " with " << maxDensity << " people\n";
+    } else {
+        cout << "No time slots available for this platform.\n";
+    }
+}
+
+
+// Function to calculate the least crowded time slot for a specific platform
+void calculateLeastCrowdedTimeSlot() {
+    string platform;
+    cout << "\nEnter Platform Name for Least Crowded Time Slot Calculation: ";
+    cin.ignore();
+    getline(cin, platform);
+
+    if (crowdData.find(platform) == crowdData.end()) {
+        cout << "Platform not found! Please add it first.\n";
+        return;
+    }
+
+    string leastCrowdedTimeSlot;
+    int minDensity = INT_MAX;
+
+    for (const auto& timeSlot : crowdData[platform]) {
+        if (timeSlot.second < minDensity) {
+            minDensity = timeSlot.second;
+            leastCrowdedTimeSlot = timeSlot.first;
+        }
+    }
+
+    if (!leastCrowdedTimeSlot.empty()) {
+        cout << "Least Crowded Time Slot for " << platform << ": " << leastCrowdedTimeSlot 
+             << " with " << minDensity << " people\n";
+    } else {
+        cout << "No time slots available for this platform.\n";
+    }
+}
+
+// Function to compare crowd densities between two platforms
+void comparePlatforms() {
+    string platform1, platform2;
+    cout << "\nEnter First Platform Name: ";
+    cin.ignore();
+    getline(cin, platform1);
+
+    if (crowdData.find(platform1) == crowdData.end()) {
+        cout << "First platform not found! Please add it first.\n";
+        return;
+    }
+
+    cout << "Enter Second Platform Name: ";
+    getline(cin, platform2);
+
+    if (crowdData.find(platform2) == crowdData.end()) {
+        cout << "Second platform not found! Please add it first.\n";
+        return;
+    }
+
+    cout << "\nComparing Crowd Densities between " << platform1 << " and " << platform2 << ":\n";
+    cout << setw(20) << "Time Slot" << setw(15) << platform1 << setw(15) << platform2 << "\n";
+    cout << "-------------------------------------------------------------\n";
+
+    for (const auto& timeSlot : crowdData[platform1]) {
+        cout << setw(20) << timeSlot.first 
+             << setw(15) << timeSlot.second 
+             << setw(15) << (crowdData[platform2].find(timeSlot.first) != crowdData[platform2].end() ? crowdData[platform2][timeSlot.first] : 0) 
+             << " people\n";
+    }
+}
+
+// Function to calculate the total crowd density for all platforms
+void calculateTotalDensity() {
+    int totalDensity = 0;
+    int totalTimeSlots = 0;
+
+    for (const auto& platform : crowdData) {
+        for (const auto& timeSlot : platform.second) {
+            totalDensity += timeSlot.second;
+            totalTimeSlots++;
+        }
+    }
+
+    cout << "Total Crowd Density for all platforms: " << totalDensity << " people\n";
+    if (totalTimeSlots > 0) {
+        double averageDensity = static_cast<double>(totalDensity) / totalTimeSlots;
+        cout << "Average Crowd Density across all time slots: " << averageDensity << " people\n";
+    } else {
+        cout << "No time slots available to calculate average density.\n";
+    }
+}
+
+// Function to calculate average crowd density for a specific platform
+void calculateAverageDensity() {
+    string platform;
+    cout << "\nEnter Platform Name for Average Density Calculation: ";
+    cin.ignore();
+    getline(cin, platform);
+
+    if (crowdData.find(platform) == crowdData.end()) {
+        cout << "Platform not found! Please add it first.\n";
+        return;
+    }
+
+    int totalDensity = 0, timeSlotCount = 0;
+    for (const auto& timeSlot : crowdData[platform]) {
+        totalDensity += timeSlot.second;
+        timeSlotCount++;
+    }
+
+    if (timeSlotCount > 0) {
+        double averageDensity = static_cast<double>(totalDensity) / timeSlotCount;
+        cout << "Average Crowd Density for " << platform << ": " << averageDensity << " people\n";
+    } else {
+        cout << "No time slots available for this platform.\n";
+    }
+}
+// Function to display the platform with the highest density for each time slot
+void displayMaxDensityForEachTimeSlot() {
+    unordered_map<string, pair<string, int>> maxDensityForTimeSlot;
+
+    for (const auto& platform : crowdData) {
+        for (const auto& timeSlot : platform.second) {
+            if (maxDensityForTimeSlot.find(timeSlot.first) == maxDensityForTimeSlot.end() || 
+                timeSlot.second > maxDensityForTimeSlot[timeSlot.first].second) {
+                maxDensityForTimeSlot[timeSlot.first] = {platform.first, timeSlot.second};
+            }
+        }
+    }
+
+    cout << "\nMaximum Density for Each Time Slot:\n";
+    cout << setw(20) << "Time Slot" << setw(20) << "Platform" << setw(15) << "Density\n";
+    cout << "-------------------------------------------------------------\n";
+    for (const auto& entry : maxDensityForTimeSlot) {
+        cout << setw(20) << entry.first 
+             << setw(20) << entry.second.first 
+             << setw(15) << entry.second.second << " people\n";
+    }
+}
+
+// Function to display the platform with the lowest density for each time slot
+void displayMinDensityForEachTimeSlot() {
+    unordered_map<string, pair<string, int>> minDensityForTimeSlot;
+
+    for (const auto& platform : crowdData) {
+        for (const auto& timeSlot : platform.second) {
+            if (minDensityForTimeSlot.find(timeSlot.first) == minDensityForTimeSlot.end() || 
+                timeSlot.second < minDensityForTimeSlot[timeSlot.first].second) {
+                minDensityForTimeSlot[timeSlot.first] = {platform.first, timeSlot.second};
+            }
+        }
+    }
+
+    cout << "\nMinimum Density for Each Time Slot:\n";
+    cout << setw(20) << "Time Slot" << setw(20) << "Platform" << setw(15) << "Density\n";
+    cout << "-------------------------------------------------------------\n";
+    for (const auto& entry : minDensityForTimeSlot) {
+        cout << setw(20) << entry.first 
+             << setw(20) << entry.second.first 
+             << setw(15) << entry.second.second << " people\n";
+    }
+}
+
+// Function to display the average density for each time slot across all platforms
+void displayAverageDensityForEachTimeSlot() {
+    unordered_map<string, pair<int, int>> totalDensityForTimeSlot;
+
+    for (const auto& platform : crowdData) {
+        for (const auto& timeSlot : platform.second) {
+            totalDensityForTimeSlot[timeSlot.first].first += timeSlot.second;
+            totalDensityForTimeSlot[timeSlot.first].second++;
+        }
+    }
+
+    cout << "\nAverage Density for Each Time Slot:\n";
+    cout << setw(20) << "Time Slot" << setw(15) << "Average Density\n";
+    cout << "---------------------------------------------\n";
+    for (const auto& entry : totalDensityForTimeSlot) {
+        double averageDensity = static_cast<double>(entry.second.first) / entry.second.second;
+        cout << setw(20) << entry.first 
+             << setw(15) << averageDensity << " people\n";
+    }
+}
+// Station2 Class
+class Station2
+{
+public:
+    int stationID;
+    string stationName;
+    double latitude;
+    double longitude;
+    vector<pair<int, double>> connections; // Pair of connected station ID and distance
+
+    Station2(int id, string name, double lat, double lon)
+        : stationID(id), stationName(name), latitude(lat), longitude(lon) {}
+
+    void addConnection(int destID, double distance)
+    {
+        connections.push_back({destID, distance});
+    }
+
+    void displayStation() const
+    {
+        cout << "Station ID: " << stationID
+             << ", Name: " << stationName
+             << ", Latitude: " << latitude
+             << ", Longitude: " << longitude << "\n";
+        cout << "Connections:\n";
+        for (const auto& conn : connections)
+            {
+            cout << "  -> Station ID: " << conn.first
+                 << ", Distance: " << conn.second << " km\n";
+        }
+    }
+};
+
+// Function Prototypes
+void addStation(vector<Station2>& stations, int id, const string& name, double lat, double lon);
+void addConnection(vector<Station2>& stations, int srcID, int destID, double distance);
+void displayAllStations(const vector<Station2>& stations);
+void calculateShortestPath(const vector<Station2>& stations, int srcID);
+void generateAccessibilityMap(const vector<Station2>& stations);
+void generateRandomStations(vector<Station2>& stations, int count);
+void generateRandomConnections(vector<Station2>& stations, int count);
+void dijkstraAnotherImplementation(const vector<Station2>& stations, int srcID);
+void randomOperation(vector<Station2>& stations);
+void simulateOperations(vector<Station2>& stations, int iterations);
+void printWelcomeMessage();
+void removeStation(vector<Station2>& stations, int id);
+void removeConnection(vector<Station2>& stations, int srcID, int destID);
+void updateConnectionDistance(vector<Station2>& stations, int srcID, int destID, double newDistance);
+void findAndDisplayStation(const vector<Station2>& stations, int id);
+void optimizeAccessibilityMap(vector<Station2>& stations);
+void simulateTrafficAndUpdateConnections(vector<Station2>& stations);
+void analyzeAccessibility(const vector<Station2>& stations);
+void enhancedUserInterface(vector<Station2>& stations);
+
+// Main Function
+
+
+// Add Station Function
+void addStation(vector<Station2>& stations, int id, const string& name, double lat, double lon)
+ {
+    stations.emplace_back(id, name, lat, lon);
+}
+
+// Add Connection Function
+void addConnection(vector<Station2>& stations, int srcID, int destID, double distance)
+{
+    for (auto& station : stations)
+        {
+        if (station.stationID == srcID)
+        {
+            station.addConnection(destID, distance);
+            break;
+        }
+    }
+}
+
+// Display All Stations Function
+void displayAllStations(const vector<Station2>& stations)
+{
+    for (const auto& station : stations)
+        {
+        station.displayStation();
+    }
+}
+
+// Calculate Shortest Path Function using Dijkstra's Algorithm
+void calculateShortestPath(const vector<Station2>& stations, int srcID)
+{
+    map<int, double> dist;
+    map<int, int> prev;
+    set<pair<double, int>> pq;
+
+    for (const auto& station : stations)
+        {
+        dist[station.stationID] = numeric_limits<double>::max();
+        prev[station.stationID] = -1;
+    }
+    dist[srcID] = 0.0;
+    pq.insert({0.0, srcID});
+
+    while (!pq.empty())
+        {
+        int u = pq.begin()->second;
+        pq.erase(pq.begin());
+
+        for (const auto& station : stations)
+            {
+            if (station.stationID == u)
+            {
+                for (const auto& conn : station.connections)
+                {
+                    int v = conn.first;
+                    double weight = conn.second;
+                    if (dist[v] > dist[u] + weight)
+                    {
+                        pq.erase({dist[v], v});
+                        dist[v] = dist[u] + weight;
+                        prev[v] = u;
+                        pq.insert({dist[v], v});
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    cout << "Shortest paths from Station ID " << srcID << ":\n";
+    for (const auto& d : dist)
+        {
+        if (d.second == numeric_limits<double>::max())
+        {
+            cout << "Station ID " << d.first << " is not reachable.\n";
+        } 
+        else
+        {
+            cout << "To Station ID " << d.first << " - Distance: " << d.second << " km\n";
+        }
+    }
+}
+
+// Generate Accessibility Map Function
+void generateAccessibilityMap(const vector<Station2>& stations)
+{
+    cout << "\n--- Accessibility Map ---\n";
+    for (const auto& station : stations)
+        {
+        cout << "Station ID: " << station.stationID
+             << ", Name: " << station.stationName << "\n";
+        for (const auto& conn : station.connections)
+        {
+            cout << "  -> Connection to Station ID: " << conn.first
+                 << ", Distance: " << conn.second << " km\n";
+        }
+        cout << endl;
+    }
+}
+
+// Utility function to generate random stations
+void generateRandomStations(vector<Station2>& stations, int count)
+{
+    static random_device rd;
+    static mt19937 gen(rd());
+    uniform_real_distribution<> latDist(-90.0, 90.0);
+    uniform_real_distribution<> lonDist(-180.0, 180.0);
+
+    for (int i = 0; i < count; ++i)
+        {
+        int id = i + 100;
+        string name = "Station" + to_string(id);
+        double lat = latDist(gen);
+        double lon = lonDist(gen);
+        addStation(stations, id, name, lat, lon);
+    }
+}
+
+// Utility function to generate random connections
+void generateRandomConnections(vector<Station2>& stations, int count)
+{
+    static random_device rd;
+    static mt19937 gen(rd());
+    uniform_int_distribution<> stationDist(0, stations.size() - 1);
+    uniform_real_distribution<> distanceDist(1.0, 100.0);
+
+    for (int i = 0; i < count; ++i)
+        {
+        int srcIndex = stationDist(gen);
+        int destIndex = stationDist(gen);
+        int srcID = stations[srcIndex].stationID;
+        int destID = stations[destIndex].stationID;
+        double distance = distanceDist(gen);
+        addConnection(stations, srcID, destID, distance);
+    }
+}
+
+// Another implementation of Dijkstra's Algorithm
+void dijkstraAnotherImplementation(const vector<Station2>& stations, int srcID)
+{
+    map<int, double> dist;
+    map<int, int> prev;
+    set<pair<double, int>> pq;
+
+    for (const auto& station : stations)
+        {
+        dist[station.stationID] = numeric_limits<double>::max();
+        prev[station.stationID] = -1;
+    }
+    dist[srcID] = 0.0;
+    pq.insert({0.0, srcID});
+
+    while (!pq.empty())
+        {
+        int u = pq.begin()->second;
+        pq.erase(pq.begin());
+
+        for (const auto& station : stations)
+            {
+            if (station.stationID == u)
+            {
+                for (const auto& conn : station.connections)
+                {
+                    int v = conn.first;
+                    double weight = conn.second;
+                    if (dist[v] > dist[u] + weight)
+                    {
+                        pq.erase({dist[v], v});
+                        dist[v] = dist[u] + weight;
+                        prev[v] = u;
+                        pq.insert({dist[v], v});
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    cout << "Shortest paths from Station ID " << srcID << ":\n";
+    for (const auto& d : dist) 
+    {
+        if (d.second == numeric_limits<double>::max())
+            {
+            cout << "Station ID " << d.first << " is not reachable.\n";
+        } 
+        else
+        {
+            cout << "To Station ID " << d.first << " - Distance: " << d.second << " km\n";
+        }
+    }
+}
+
+// Function to perform a random operation for simulation
+void randomOperation(vector<Station2>& stations)
+{
+    static random_device rd;
+    static mt19937 gen(rd());
+    uniform_int_distribution<> opDist(0, 4);
+
+    int operation = opDist(gen);
+    switch (operation)
+    {
+        case 0:
+            // Add a random station
+            generateRandomStations(stations, 1);
+            break;
+        case 1:
+            // Add a random connection
+            generateRandomConnections(stations, 1);
+            break;
+        case 2:
+            // Display all stations
+            displayAllStations(stations);
+            break;
+        case 3:
+            // Calculate shortest path from a random station
+            if (!stations.empty())
+                {
+                uniform_int_distribution<> stationDist(0, stations.size() - 1);
+                int randomStationIndex = stationDist(gen);
+                int randomStationID = stations[randomStationIndex].stationID;
+                calculateShortestPath(stations, randomStationID);
+            }
+            break;
+        case 4:
+            // Generate accessibility map
+            generateAccessibilityMap(stations);
+            break;
+        default:
+            cout << "Invalid operation.\n";
+    }
+}
+
+// Function to simulate operations on the stations
+void simulateOperations(vector<Station2>& stations, int iterations)
+{
+    for (int i = 0; i < iterations; ++i)
+        {
+        randomOperation(stations);
+    }
+}
+
+// Function to print a welcome message
+void printWelcomeMessage()
+{
+    cout << "\n--- Welcome to Train Station ---\n";
+    cout << "This program simulates dynamic route optimization for public transit and\n";
+    cout << "generates accessibility maps for a network of train stations.\n";
+    cout << "Feel free to explore the functionalities and simulate various operations.\n";
+}
+
+// Function to remove a station by ID
+void removeStation(vector<Station2>& stations, int id)
+{
+    auto it = remove_if(stations.begin(), stations.end(), [id](const Station2& station)
+                        {
+        return station.stationID == id;
+    }
+    );
+    if (it != stations.end())
+        {
+        stations.erase(it, stations.end());
+        cout << "Station ID " << id << " removed successfully.\n";
+    }
+     else 
+     {
+        cout << "Station ID " << id << " not found.\n";
+    }
+}
+
+// Function to remove a connection between stations
+void removeConnection(vector<Station2>& stations, int srcID, int destID)
+{
+    for (auto& station : stations)
+        {
+        if (station.stationID == srcID)
+        {
+            auto it = remove_if(station.connections.begin(), station.connections.end(), [destID](const pair<int, double>& conn)
+                                {
+                return conn.first == destID;
+            });
+            if (it != station.connections.end())
+            {
+                station.connections.erase(it, station.connections.end());
+                cout << "Connection from Station ID " << srcID << " to Station ID " << destID << " removed successfully.\n";
+            } 
+            else 
+            {
+                cout << "Connection not found.\n";
+            }
+            return;
+        }
+    }
+    cout << "Station ID " << srcID << " not found.\n";
+}
+
+// Function to update the distance of a connection
+void updateConnectionDistance(vector<Station2>& stations, int srcID, int destID, double newDistance)
+{
+    for (auto& station : stations)
+        {
+        if (station.stationID == srcID)
+        {
+            for (auto& conn : station.connections)
+            {
+                if (conn.first == destID)
+                {
+                    conn.second = newDistance;
+                    cout << "Distance updated successfully.\n";
+                    return;
+                }
+            }
+            cout << "Connection not found.\n";
+            return;
+        }
+    }
+    cout << "Station ID " << srcID << " not found.\n";
+}
+
+// Function to find and display a station by ID
+void findAndDisplayStation(const vector<Station2>& stations, int id)
+{
+    for (const auto& station : stations)
+        {
+        if (station.stationID == id)
+        {
+            station.displayStation();
+            return;
+        }
+    }
+    cout << "Station ID " << id << " not found.\n";
+}
+
+// Function to optimize the accessibility map
+void optimizeAccessibilityMap(vector<Station2>& stations)
+{
+    // This function can include advanced algorithms for optimization
+    // For demonstration, we'll simulate optimization with random operations
+    cout << "Optimizing Accessibility Map...\n";
+    simulateOperations(stations, 10); // Simulate 10 random operations for optimization
+    cout << "Optimization Complete.\n";
+}
+
+// Function to simulate traffic and update connection distances
+void simulateTrafficAndUpdateConnections(vector<Station2>& stations)
+{
+    static random_device rd;
+    static mt19937 gen(rd());
+    uniform_real_distribution<> trafficDist(-0.1, 0.1);
+
+    // Simulate traffic with random increments or decrements in distances
+    for (auto& station : stations)
+        {
+        for (auto& conn : station.connections)
+        {
+            double trafficFactor = trafficDist(gen);
+            conn.second += conn.second * trafficFactor;
+        }
+    }
+    cout << "Traffic simulation complete. Distances updated.\n";
+}
+
+// Function to analyze the accessibility of all stations
+void analyzeAccessibility(const vector<Station2>& stations)
+{
+    cout << "\n--- Accessibility Analysis ---\n";
+    for (const auto& station : stations) {
+        cout << "Station ID: " << station.stationID << ", Name: " << station.stationName << "\n";
+        double totalDistance = 0.0;
+        int connectionCount = 0;
+        for (const auto& conn : station.connections)
+            {
+            totalDistance += conn.second;
+            connectionCount++;
+        }
+        double averageDistance = (connectionCount > 0) ? totalDistance / connectionCount : 0.0;
+        cout << "  Total Connections: " << connectionCount << "\n";
+        cout << "  Average Distance: " << averageDistance << " km\n";
+    }
+}
+
+
+// Display the main menu of the program
+void displayMenu()
+ {
+     cout << "\n--- Enhanced Train Station Accessibility Map ---\n";
+        cout << "1. Display All Stations\n";
+        cout << "2. Generate Accessibility Map\n";
+        cout << "3. Simulate Operations\n";
+        cout << "4. Add a Station\n";
+        cout << "5. Add a Connection\n";
+        cout << "6. Remove a Station\n";
+        cout << "7. Remove a Connection\n";
+        cout << "8. Update Connection Distance\n";
+        cout << "9. Find and Display a Station\n";
+        cout << "10. Optimize Accessibility Map\n";
+        cout << "11. Simulate Traffic and Update Connections\n";
+        cout << "12. Analyze Accessibility\n";
+        cout << "\n--- Crowd Management System ---\n";
+        cout << "13. Display Crowd Data\n";
+        cout << "14. Add Platform and Time Slot\n";
+        cout << "15. Update Crowd Density\n";
+        cout << "16. Predict Future Density\n";
+        cout << "17. Visualize Data\n";
+        cout << "18. Check Overcrowding\n";
+        cout << "19. Analyze Trends\n";
+        cout << "20. Remove Time Slot\n";
+        cout << "21. Batch Add Data\n";
+        cout << "22. Generate Daily Report\n";
+        cout << "23. Generate Weekly Report\n";
+        cout << "24. Generate Monthly Report\n";
+        cout << "25. Save Data to File\n";
+        cout << "26. Load Data from File\n";
+        cout << "27. Calculate Average Density\n";
+        cout << "28. Display Max Density for Each Time Slot\n";
+        cout << "29. Display Min Density for Each Time Slot\n";
+        cout << "30. Display Average Density for Each Time Slot\n";
+    // ===========================================
+    // Display the Railway Network Menu Header
+    // ===========================================
+
+    // Decorative top border for the menu
+    cout << "===========================================" << endl;
+
+    // Title of the Railway Network Menu
+    // Using emojis for a more engaging visual appearance
+    cout << "             Railway Network Menu      " << endl;
+
+    // Decorative bottom border for the header
+    cout << "===========================================" << endl;
+
+    // ===========================================
+    // Display the menu options
+    // ===========================================
+
+    // Option 1: Find Route
+    // This feature helps users find a specific route between two stations
+    cout << "31.Find Route" << endl;
+
+    // Option 2: Display All Stations
+    // Lists all the stations available in the railway network
+    cout << "32.  Display All Stations" << endl;
+
+    // Option 3: Display All Connections
+    // Displays all connections (routes) between stations
+    cout<< "33.  Display All Connections" << endl;
+
+    // Option 4: Display Station Details
+    // Shows detailed information about a particular station
+    cout << "34.  Display Station Details" << endl;
+
+    // Option 5: Remove Station
+    // Allows the user to delete a station from the railway network
+    cout<< "35.  Remove Station" << endl;
+
+    // Option 6: Update Connection Cost
+    // Updates the travel cost between two connected stations
+    cout << "36.  Update Connection Cost" << endl;
+
+    // Option 7: Suggest Train Preference
+    // Suggests the best train based on user criteria like speed or comfort
+    cout<< "37.  Suggest Train Preference" << endl;
+
+    // Option 8: Run Test Cases
+    // Runs a set of predefined test cases for validation and debugging
+    cout<< "38.  Run Test Cases" << endl;
+
+    // Option 9: Display Train Details
+    // Displays information about trains operating in the network
+    cout<< "39.  Display Train Details" << endl;
+
+    // Option 10: Check Seat Availability
+    // Allows users to check if seats are available on a specific train
+    cout<< "40. Check Seat Availability" << endl;
+
+    // Option 11: Railway Stop Prediction System
+    // Predicts which stations a train will stop at, based on input
+    cout << "41. Railway Stop Prediction System" << endl;
+
+    // Option 12: Lambda-Powered Train Journey Finder
+    // Utilizes lambda expressions to enhance train journey search functionality
+    cout<< "42. Lambda-Powered Train Journey Finder" << endl;
+
+    cout << "===========================================" << endl;
+
+    // Prompt the user to enter their choice
+    // The input will determine which action to perform
+     std::cout << "\n--- Train Ticket Booking System ---\n";
+        std::cout << "43. Display Trains\n";
+        std::cout << "44. Book Ticket\n";
+        std::cout << "45. Cancel Ticket\n";
+        std::cout << "46. Search Ticket\n";
+        std::cout << "47. Display All Tickets\n";
+        std::cout << "48. Exit\n";
+        std::cout << "Enter your choice:";
+
+    // End of the program
+}
+
+//main fucntion
+int main() 
+{
+    std::vector<Train> trains;
+    std::vector<Ticket> tickets;
+
+    loadTrainsFromFile(trains);
+    loadTicketsFromFile(tickets);
+    vector<Station2> stations;
+
+    // Initializing with some stations and connections based on the new data
+addStation(stations, 1, "Bengaluru", 12.9716, 77.5946); 
+ // Karnataka Express
+addStation(stations, 2, "Mumbai", 19.0760, 72.8777);   
+  // Karnataka Express
+addStation(stations, 3, "Mysuru", 12.2958, 76.6394);     
+// Mysuru Express
+addStation(stations, 4, "Chennai", 13.0827, 80.2707);    
+// Mysuru Express
+addStation(stations, 5, "Mangaluru", 12.9141, 74.8560);  
+// Udaya Express
+addStation(stations, 6, "Delhi", 28.6139, 77.2090);      
+// Rajdhani Express
+addStation(stations, 7, "Hubballi", 15.3647, 75.1300);   
+// Hampi Express
+addStation(stations, 8, "Bagalkot", 16.1804, 75.7035);  
+// Basava Express
+addStation(stations, 9, "Vijayapura", 16.8295, 75.7154); 
+// Gol Gumbaz Express
+addStation(stations, 10, "Kolhapur", 16.7003, 74.2432); 
+// Rani Chennamma Express
+addStation(stations, 11, "Shimoga", 13.9293, 75.5667);  
+// Sharavathi Express
+addStation(stations, 12, "Kannur", 11.8745, 75.3704);   
+// Kannur Express
+addStation(stations, 13, "Secunderabad", 17.4371, 78.4980); 
+// Tungabhadra Express
+addStation(stations, 14, "Karwar", 14.7990, 74.1239);   
+// Karwar Express
+addStation(stations, 15, "Shivamogga", 14.2382, 75.5646); 
+// Malnad Express
+addStation(stations, 16, "Bijapur", 16.8301, 75.7100);  
+// Bijapur Passenger
+addStation(stations, 17, "Hospet", 15.2669, 76.3956);   
+// Hospet Passenger
+addStation(stations, 18, "Harihar", 14.7952, 75.4167);  
+// Harihar Express
+addStation(stations, 19, "Belagavi", 15.8484, 74.4977); 
+// Belagavi Express
+
+// Connections between stations
+addConnection(stations, 1, 2, 750.5); 
+ // Karnataka Express
+addConnection(stations, 3, 4, 600);    
+// Mysuru Express
+addConnection(stations, 1, 5, 550);    
+// Udaya Express
+addConnection(stations, 1, 6, 2200);   
+// Rajdhani Express
+addConnection(stations, 3, 1, 450);    
+// Shatabdi Express
+addConnection(stations, 7, 3, 500);    
+// Hampi Express
+addConnection(stations, 8, 1, 650);    
+// Basava Express
+addConnection(stations, 9, 3, 700);    
+// Gol Gumbaz Express
+addConnection(stations, 1, 7, 350);    
+// Intercity Express
+addConnection(stations, 1, 10, 800);   
+// Rani Chennamma Express
+addConnection(stations, 1, 11, 400);   
+// Sharavathi Express
+addConnection(stations, 3, 12, 550);   
+// Kannur Express
+addConnection(stations, 7, 13, 850);   
+// Tungabhadra Express
+addConnection(stations, 1, 14, 1000);  
+// Karwar Express
+addConnection(stations, 15, 1, 300);   
+// Malnad Express
+addConnection(stations, 16, 8, 200);   
+// Bijapur Passenger
+addConnection(stations, 1, 17, 150);   
+// Vishwamanava Express
+addConnection(stations, 17, 1, 350);   
+// Hospet Passenger
+addConnection(stations, 18, 1, 300);   
+// Harihar Express
+addConnection(stations, 19, 1, 750);   
+// Belagavi Express
+
+
+    printWelcomeMessage();
+    cout << "\n";
+    cout << "*                                                *\n";
+    cout << "*        Welcome to the Crowd Management         *\n";
+    cout << "*                  System!                       *\n";
+    cout << "*                                                *\n";
+    cout << "\n";
+    cout << "\nThis system helps you manage and analyze crowd density data for various platforms and time slots.\n";
+    cout << "You can add, update, visualize, and predict crowd densities, as well as generate reports and analyze trends.\n";
+    cout << "Please follow the on-screen instructions to navigate through the system.\n";
+    cout << "If you need any assistance, refer to the user manual or contact support.\n";
+    cout << "\nInitializing system...\n";
+    cout << "Loading data...\n";
+    // Load data from file if available
+    loadDataFromFile();
+    cout << "System ready!\n";
+    Graph railwayNetwork;
+
+    // Initialize the railway network with stations and connections.
+    initializeNetwork(railwayNetwork);
+
+    int choice;
+    do 
+    {
+        displayMenu();
+         std::cin >> choice;
+
+        switch (choice) 
+        {
+             case 1:
+                displayAllStations(stations);
+                break;
+            case 200:
+                
+                {
+                int srcID;
+                cout << "Enter Source Station ID: ";
+                cin >> srcID;
+                calculateShortestPath(stations, srcID);
+                break;
+            }
+
+            case 2:
+                generateAccessibilityMap(stations);
+                break;
+            case 3:
+
+                {
+                int iterations;
+                cout << "Enter number of iterations: ";
+                cin >> iterations;
+                simulateOperations(stations, iterations);
+                break;
+
+            }
+
+            case 4:
+                {
+                int id;
+                string name;
+                double lat, lon;
+                cout << "Enter Station ID: ";
+                cin >> id;
+                cout << "Enter Station Name: ";
+                cin.ignore();
+                getline(cin, name);
+                cout << "Enter Latitude: ";
+                cin >> lat;
+                cout << "Enter Longitude: ";
+                cin >> lon;
+                addStation(stations, id, name, lat, lon);
+                break;
+            }
+
+            case 5:
+                {
+                int srcID, destID;
+                double distance;
+                cout << "Enter Source Station ID: ";
+                cin >> srcID;
+                cout << "Enter Destination Station ID: ";
+                cin >> destID;
+                cout << "Enter Distance: ";
+                cin >> distance;
+                addConnection(stations, srcID, destID, distance);
+                break;
+            }
+
+            case 6:
+                {
+                int id;
+                cout << "Enter Station ID to remove: ";
+                cin >> id;
+                removeStation(stations, id);
+                break;
+            }
+
+            case 7:
+                {
+                int srcID, destID;
+                cout << "Enter Source Station ID: ";
+                cin >> srcID;
+                cout << "Enter Destination Station ID: ";
+                cin >> destID;
+                removeConnection(stations, srcID, destID);
+                break;
+            }
+
+            case 8:
+                {
+                int srcID, destID;
+                double newDistance;
+                cout << "Enter Source Station ID: ";
+                cin >> srcID;
+                cout << "Enter Destination Station ID: ";
+                cin >> destID;
+                cout << "Enter New Distance: ";
+                cin >> newDistance;
+                updateConnectionDistance(stations, srcID, destID, newDistance);
+                break;
+            } 
+
+            case 9:
+                
+                {
+                int id;
+                cout << "Enter Station ID to find: ";
+                cin >> id;
+                findAndDisplayStation(stations, id);
+                break;
+            }
+            case 10:
+                optimizeAccessibilityMap(stations);
+                break;
+            case 11:
+                simulateTrafficAndUpdateConnections(stations);
+                break;
+            case 12:
+                analyzeAccessibility(stations);
+                break;
+            case 100:
+                 cout << "\n--- Enhanced Train Station Accessibility Map ---\n";
+        cout << "1. Display All Stations\n";
+
+        cout << "2. Generate Accessibility Map\n";
+
+        cout << "3. Simulate Operations\n";
+
+        cout << "4. Add a Station\n";
+
+        cout << "5. Add a Connection\n";
+
+        cout << "6. Remove a Station\n";
+
+        cout << "7. Remove a Connection\n";
+
+        cout << "8. Update Connection Distance\n";
+        cout << "9. Find and Display a Station\n";
+        cout << "10. Optimize Accessibility Map\n";
+        cout << "11. Simulate Traffic and Update Connections\n";
+        cout << "12. Analyze Accessibility\n";
+        cout << "13. Exit\n";
+        cout << "Enter your choice: ";
+        void randomOperation(vector<Station2>& stations);
+{
+    static random_device rd;
+    static mt19937 gen(rd());
+    uniform_int_distribution<> opDist(0, 4);
+
+    int operation = opDist(gen);
+    switch (operation)
+    {
+        case 0:
+            // Add a random station
+            generateRandomStations(stations, 1);
+            break;
+        case 1:
+            // Add a random connection
+            generateRandomConnections(stations, 1);
+            break;
+        case 2:
+            // Display all stations
+            displayAllStations(stations);
+            break;
+        case 3:
+            // Calculate shortest path from a random station
+            if (!stations.empty())
+                {
+                uniform_int_distribution<> stationDist(0, stations.size() - 1);
+                int randomStationIndex = stationDist(gen);
+                int randomStationID = stations[randomStationIndex].stationID;
+                calculateShortestPath(stations, randomStationID);
+            }
+            break;
+        case 4:
+            // Generate accessibility map
+            generateAccessibilityMap(stations);
+            break;
+        default:
+            cout << "Invalid operation.\n";
+    }
+}
+
+// Function to simulate operations on the stations
+void simulateOperations(vector<Station2>& stations, int iterations);
+{
+    int iterations=6;
+    for (int i = 0; i < iterations; ++i)
+        {
+        randomOperation(stations);
+    }
+}
+
+// Function to print a welcome message
+void printWelcomeMessage();
+{
+    cout << "\n--- Welcome to Train Station ---\n";
+    cout << "This program simulates dynamic route optimization for public transit and\n";
+    cout << "generates accessibility maps for a network of train stations.\n";
+    cout << "Feel free to explore the functionalities and simulate various operations.\n";
+}
+
+// Function to remove a station by ID
+void removeStation(vector<Station2>& stations, int id);
+{
+    int id=7;
+    auto it = remove_if(stations.begin(), stations.end(), [id](const Station2& station)
+                        {
+        return station.stationID == id;
+    });
+    if (it != stations.end())
+        {
+        stations.erase(it, stations.end());
+        cout << "Station ID " << id << " removed successfully.\n";
+    } else {
+        cout << "Station ID " << id << " not found.\n";
+    }
+}
+
+// Function to remove a connection between stations
+void removeConnection(vector<Station2>& stations, int srcID, int destID);
+{
+    int srcID,destID;
+    for (auto& station : stations)
+        {
+        if (station.stationID == srcID)
+        {
+            auto it = remove_if(station.connections.begin(), station.connections.end(), [destID](const pair<int, double>& conn)
+                                {
+                return conn.first == destID;
+            });
+            if (it != station.connections.end())
+            {
+                station.connections.erase(it, station.connections.end());
+                cout << "Connection from Station ID " << srcID << " to Station ID " << destID << " removed successfully.\n";
+            } else {
+                cout << "Connection not found.\n";
+            }
+            return 0;
+        }
+    }
+    cout << "Station ID " << srcID << " not found.\n";
+}
+
+// Function to update the distance of a connection
+void updateConnectionDistance(vector<Station2>& stations, int srcID, int destID, double newDistance);
+{
+    int srcID,destID,newDistance;
+    for (auto& station : stations)
+        {
+        if (station.stationID == srcID)
+        {
+            for (auto& conn : station.connections)
+            {
+                if (conn.first == destID)
+                {
+                    conn.second = newDistance;
+                    cout << "Distance updated successfully.\n";
+                    return 0;
+                }
+            }
+            cout << "Connection not found.\n";
+            return 0;
+        }
+    }
+    cout << "Station ID " << srcID << " not found.\n";
+}
+
+// Function to find and display a station by ID
+void findAndDisplayStation(const vector<Station2>& stations, int id);
+{
+    int id;
+    for (const auto& station : stations)
+        {
+        if (station.stationID == id)
+        {
+            station.displayStation();
+            return 0;
+        }
+    }
+    cout << "Station ID " << id << " not found.\n";
+}
+
+// Function to optimize the accessibility map
+void optimizeAccessibilityMap(vector<Station2>& stations);
+{
+    // This function can include advanced algorithms for optimization
+    // For demonstration, we'll simulate optimization with random operations
+    cout << "Optimizing Accessibility Map...\n";
+    simulateOperations(stations, 10); // Simulate 10 random operations for optimization
+    cout << "Optimization Complete.\n";
+}
+
+// Function to simulate traffic and update connection distances
+void simulateTrafficAndUpdateConnections(vector<Station2>& stations);
+{
+    static random_device rd;
+    static mt19937 gen(rd());
+    uniform_real_distribution<> trafficDist(-0.1, 0.1);
+
+    // Simulate traffic with random increments or decrements in distances
+    for (auto& station : stations)
+        {
+        for (auto& conn : station.connections)
+        {
+            double trafficFactor = trafficDist(gen);
+            conn.second += conn.second * trafficFactor;
+        }
+    }
+    cout << "Traffic simulation complete. Distances updated.\n";
+}
+
+// Function to analyze the accessibility of all stations
+void analyzeAccessibility(const vector<Station2>& stations);
+{
+    cout << "\n--- Accessibility Analysis ---\n";
+    for (const auto& station : stations) {
+        cout << "Station ID: " << station.stationID << ", Name: " << station.stationName << "\n";
+        double totalDistance = 0.0;
+        int connectionCount = 0;
+        for (const auto& conn : station.connections)
+            {
+            totalDistance += conn.second;
+            connectionCount++;
+        }
+        double averageDistance = (connectionCount > 0) ? totalDistance / connectionCount : 0.0;
+        cout << "  Total Connections: " << connectionCount << "\n";
+        cout << "  Average Distance: " << averageDistance << " km\n";
+    }
+}
+        void optimizeAccessibilityMap(vector<Station2>& stations);
+{
+    // This function can include advanced algorithms for optimization
+    // For demonstration, we'll simulate optimization with random operations
+    cout << "Optimizing Accessibility Map...\n";
+    simulateOperations(stations, 10); // Simulate 10 random operations for optimization
+    cout << "Optimization Complete.\n";
+}
+
+// Function to simulate traffic and update connection distances
+void simulateTrafficAndUpdateConnections(vector<Station2>& stations);
+{
+    static random_device rd;
+    static mt19937 gen(rd());
+    uniform_real_distribution<> trafficDist(-0.1, 0.1);
+
+    // Simulate traffic with random increments or decrements in distances
+    for (auto& station : stations)
+        {
+        for (auto& conn : station.connections)
+        {
+            double trafficFactor = trafficDist(gen);
+            conn.second += conn.second * trafficFactor;
+        }
+    }
+    cout << "Traffic simulation complete. Distances updated.\n";
+}
+
+// Function to analyze the accessibility of all stations
+void analyzeAccessibility(const vector<Station2>& stations);
+{
+    cout << "\n--- Accessibility Analysis ---\n";
+    for (const auto& station : stations) {
+        cout << "Station ID: " << station.stationID << ", Name: " << station.stationName << "\n";
+        double totalDistance = 0.0;
+        int connectionCount = 0;
+        for (const auto& conn : station.connections)
+            {
+            totalDistance += conn.second;
+            connectionCount++;
+        }
+        double averageDistance = (connectionCount > 0) ? totalDistance / connectionCount : 0.0;
+        cout << "  Total Connections: " << connectionCount << "\n";
+        cout << "  Average Distance: " << averageDistance << " km\n";
+    }
+}
+             case 13:
+                displayData();
+                logAction("Displayed crowd data");
+                break;
+            case 14:
+                addPlatformAndTimeSlot();
+                logAction("Added platform and time slot");
+                break;
+            case 15:
+                updateCrowdDensity();
+                logAction("Updated crowd density");
+                break;
+            case 16:
+                predictDensity();
+                logAction("Predicted future density");
+                break;
+            case 17:
+                visualizeData();
+                logAction("Visualized crowd density");
+                break;
+            case 18:
+                checkCrowdDensity();
+                logAction("Checked overcrowding");
+                break;
+            case 19:
+                analyzeTrends();
+                logAction("Analyzed crowd density trends");
+                break;
+            case 20:
+                removeTimeSlot();
+                logAction("Removed time slot");
+                break;
+            case 21:
+                batchAddData();
+                logAction("Batch added crowd data");
+                break;
+            case 22:
+                generateDailyReport();
+                logAction("Generated daily report");
+                break;
+            case 23:
+                generateWeeklyReport();
+                logAction("Generated weekly report");
+                break;
+            case 24:
+                generateMonthlyReport();
+                logAction("Generated monthly report");
+                break;
+            case 25:
+                saveDataToFile();
+                logAction("Saved data to file");
+                break;
+            case 26:
+                loadDataFromFile();
+                logAction("Loaded data from file");
+                break;
+            case 27:
+                calculateAverageDensity();
+                logAction("Calculated average density");
+                break;
+            case 28:
+                displayMaxDensityForEachTimeSlot();
+                logAction("Displayed max density for each time slot");
+                break;
+            case 29:
+                displayMinDensityForEachTimeSlot();
+                logAction("Displayed min density for each time slot");
+                break;
+            case 30:
+                displayAverageDensityForEachTimeSlot();
+                logAction("Displayed average density for each time slot");
+                break;
+             case 31:
+                // Option to find a route between two stations.
+                processFindRoute(railwayNetwork);
+                // Call the function to process route finding.
+                break;
+                // Exit this case.
+
+            case 32:
+                // Option to display all stations in the railway network.
+                railwayNetwork.displayStations();
+                // Invoke the method to show all stations.
+                break;
+                // Exit this case.
+
+            case 33:
+                // Option to display all connections between stations.
+                railwayNetwork.displayConnections();
+                // Call the method to display station connections.
+                break;
+                // Exit this case.
+
+            case 34:
+                 // Option to view details of a specific station.
+            {
+                cout << "Enter station name to view details: ";
+                // Prompt for the station name.
+                cin.ignore();
+                // Ignore any leftover newline character in the input stream.
+                string stationName;
+                 // Declare a string to hold the station name.
+                getline(cin, stationName);
+                // Read the full name of the station including spaces.
+                railwayNetwork.displayStationDetails(stationName);
+                 // Display details for the specified station.
+                break;
+                // Exit this case block.
+            }
+
+            case 35:
+                // Option to remove a station from the network.
+            {
+                cout << "Enter station name to remove: ";
+                // Prompt for the station name to be removed.
+                cin.ignore();
+                 // Clear the input buffer to handle input cleanly.
+                string stationName;
+                // Declare a string to hold the station name.
+                getline(cin, stationName);
+                // Read the full name of the station.
+                railwayNetwork.removeStation(stationName);
+                // Call the method to remove the specified station.
+                break;
+                // Exit this case block.
+            }
+
+            case 36:
+                 // Option to update the cost of the connection between two stations.
+            {
+                string station1, station2;
+                // Declare strings to hold the names of two stations.
+                double newCost;
+                // Variable to hold the new cost for the connection.
+                cout << "Enter first station name: ";
+                 // Prompt for the first station name.
+                cin.ignore();
+                // Ignore any leftover newline character to read the station name cleanly.
+                getline(cin, station1);
+                // Read the first station name.
+                cout << "Enter second station name: ";
+                // Prompt for the second station name.
+                getline(cin, station2);
+
+                 // Read the second station name.
+                cout << "Enter new cost: ₹";
+                // Prompt for the new cost of the connection.
+                cin >> newCost;
+                // Read the new cost from the user's input.
+                railwayNetwork.updateConnectionCost(station1, station2, newCost);
+                 // Update the connection cost between the two specified stations.
+                break;
+                // Exit this case block.
+            }
+
+            case 37:
+                // Option to suggest a train route between two specified stations.
+            {
+                string start, end;
+                // Strings to hold the start and end station names.
+                cout << "Enter starting station: ";
+                // Prompt user for the starting station name.
+                cin.ignore();
+                // Clear leftover newline character from previous input.
+                getline(cin, start);
+                 // Read the starting station name.
+                cout << "Enter destination station: ";
+                // Prompt user for the destination station name.
+                getline(cin, end);
+                // Read the destination station name.
+                railwayNetwork.suggestTrain(start, end);
+                // Suggest trains connecting the two specified stations.
+                break;
+                // Exit this case block.
+            }
+
+            case 38:
+                // Option to perform test cases on the railway network.
+                performTestCases(railwayNetwork);
+                 // Execute predefined test cases.
+                break;
+                 // Exit this case block.
+
+            case 39:
+                // Option to display train details for a specific route.
+            {
+                string start, end;
+                 // Strings to hold the starting and destination station names.
+                cout << "Enter starting station: ";
+                 // Prompt for the starting station.
+                cin.ignore();
+                // Clear any leftover newline character.
+                getline(cin, start);
+                // Read the starting station name.
+                cout << "Enter destination station: ";
+                // Prompt for the destination station.
+                getline(cin, end);
+                // Read the destination station name.
+                railwayNetwork.displayTrainDetails(start, end);
+                 // Display details of trains running between the two stations.
+                break;
+                // Exit this case block.
+            }
+
+            case 40:
+                {
+                 // New case for checking seat availability
+                 string start, end;
+                  // Variables to store the starting and destination stations
+
+                 // Prompt the user to enter the starting station
+                  cout << "Enter starting station: ";
+                cin.ignore();
+                 // Clear the input buffer to handle any previous inputs
+                 getline(cin, start);
+                 // Read the starting station name (supports multi-word inputs)
+
+                // Prompt the user to enter the destination station
+               cout << "Enter destination station: ";
+               getline(cin, end);
+                // Read the destination station name (supports multi-word inputs)
+
+               // Call the displaySeatAvailability function of the railway network object
+                // This will check and display the available seats between the provided stations
+                railwayNetwork.displaySeatAvailability(start, end);
+
+              break;
+              // Exit the current case block
+              }
+            case 41:
+                {
+                  railwayNetwork.railwayStopPredictionSystem();
+                  // Invoke the function
+                }
+
+            // Case 12: Functionality to find and retrieve train journeys from the railway network.
+              case 42:
+                  {
+                railwayNetwork.findTrainJourney();
+                 // Calls the method to find a specific train journey.
+                }
+
+
+                // Case 13: Functionality to manage routes and favorite journeys for the railway network.
+                 case 51:
+                 {
+                railwayNetwork.manageRoutesAndFavorites();
+                 // Calls the method to manage routes and favorite journeys.
+                 }
+            case 43:
+                displayTrains(trains);
+                break;
+            case 44:
+                bookTicket(trains, tickets);
+                break;
+            case 45:
+                cancelTicket(trains, tickets);
+                break;
+            case 46:
+                searchTicket(tickets);
+                break;
+            case 47:
+                displayAllTickets(tickets);
+                break;
+            case 48:
+                std::cout << "Exiting...\n";
+                break;
+                case 54:
+                 example1();
+    example2();
+    example3();
+    example4();
+    example5();
+    example6();
+break;
+            default:
+                std::cout << "Invalid choice! Please try again.\n";
+                break;
+        }
+    } 
+    while (choice != 52);
+
+    return 0; 
+}
+</div>
+
+    <h2>Output:</h2>
+    <pre id="output">// Output of C++ code will appear here</pre>
+
+    <button id="runBtn">Run Code</button>
+
+    <script>
+        // Initialize Ace editor
+        var editor = ace.edit("editor");
+        editor.setTheme("ace/theme/monokai");
+        editor.session.setMode("ace/mode/c_cpp");
+
+        // Run button functionality (for demonstration purposes, just showing the code)
+        document.getElementById("runBtn").onclick = function() {
+            var code = editor.getValue();
+            document.getElementById("output").textContent = "// Output:\n" + code;
+            // Normally, you'd send the code to a backend server for compilation and execution, but for now, it's just displayed.
+        };
+    </script>
+</body>
+</html>
